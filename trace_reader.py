@@ -1,21 +1,21 @@
 # Numero de blocos acessados baseado na janela de busca
 blocks = {
-    16: 44,
-    32: 60,
-    64: 76,
-    96: 76,
-    128: 76
+    '16': 44,
+    '32': 60,
+    '64': 76,
+    '96': 76,
+    '128': 76
 }
 
 size_pu = {
-    0: [1, 1],
-    1: [0.5, 0.5],
-    2: [0.5, 0.5],
-    3: [0.25, 0.25],
-    4: [0.25, 0.75],
-    5: [0.75, 0.25],
-    6: [0.25, 0.75],
-    7: [0.75, 0.25],
+    '0': [1, 1],
+    '1': [0.5, 0.5],
+    '2': [0.5, 0.5],
+    '3': [0.25, 0.25],
+    '4': [0.25, 0.75],
+    '5': [0.75, 0.25],
+    '6': [0.25, 0.75],
+    '7': [0.75, 0.25],
 }
 
 
@@ -46,7 +46,7 @@ class VideoData(object):
 
     def return_string(self):
         string = self.title + ";"
-        string += self.resolution[0].__str__() + self.resolution[1].__str__() + ";"
+        string += self.resolution[0].__str__() + 'x' + self.resolution[1].__str__() + ";"
         string += self.search_range.__str__() + ";"
         string += self.candidate_blocks.__str__() + ";"
         string += self.data_volume.__str__()
@@ -63,8 +63,11 @@ class DataReader(object):
         for line in self.input_file:
             self.process_line(line)
 
-        # TODO
-        # Escrever os dados no arquivo
+        outfile = open("output.txt", 'x')
+        outfile.write(self.video_data.return_string())
+
+        outfile.close()
+        self.input_file.close()
 
     def process_line(self, line):
         # Pula inicio da codificação e do quadro e da CTU
@@ -100,7 +103,7 @@ class DataReader(object):
     def process_pu(self, line):
         # P <sizePU> <idPart> <ref_frame_id>
         data = line.split()
-        pu = int(data[1])
+        pu = data[1]
         id_part = int(data[2])
         partition = self.video_data.cu_size * size_pu[pu][id_part]
         volume = self.video_data.cu_size * partition
@@ -129,7 +132,7 @@ class DataReader(object):
         self.video_data.set_resolution(data[1], data[2])
         self.video_data.set_search_range(data[3])
 
-"""
+
 def main():
     data_reader = DataReader("mem_trace.txt")
     data_reader.read_data()
@@ -137,4 +140,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-"""
