@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d326b910-ca8a-4587-a1a2-b4bd3d215007" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/trace_reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/trace_reader.py" afterDir="false" />
     </list>
@@ -90,7 +89,8 @@
       <updated>1566485404388</updated>
       <workItem from="1566485405558" duration="120000" />
       <workItem from="1566485570068" duration="67000" />
-      <workItem from="1566485638433" duration="4883000" />
+      <workItem from="1566485638433" duration="11229000" />
+      <workItem from="1566574704753" duration="2985000" />
     </task>
     <servers />
   </component>
@@ -102,13 +102,15 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
     </option>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Custom_Simulator$trace_reader.coverage" NAME="trace_reader Coverage Results" MODIFIED="1566519791211" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Custom_Simulator$trace_reader.coverage" NAME="trace_reader Coverage Results" MODIFIED="1566522071290" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
