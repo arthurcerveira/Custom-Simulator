@@ -91,7 +91,9 @@
       <workItem from="1566485570068" duration="67000" />
       <workItem from="1566485638433" duration="11229000" />
       <workItem from="1566574704753" duration="4101000" />
-      <workItem from="1566597227621" duration="2463000" />
+      <workItem from="1566597227621" duration="6720000" />
+      <workItem from="1566661597120" duration="4648000" />
+      <workItem from="1566821004591" duration="1283000" />
     </task>
     <servers />
   </component>
@@ -112,6 +114,6 @@
     </option>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Custom_Simulator$trace_reader.coverage" NAME="trace_reader Coverage Results" MODIFIED="1566600438933" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Custom_Simulator$trace_reader.coverage" NAME="trace_reader Coverage Results" MODIFIED="1566821508455" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

@@ -7,15 +7,16 @@ blocks = {
     '128': 76
 }
 
-size_pu = {
-    '0': [1, 1],
-    '1': [0.5, 0.5],
-    '2': [0.5, 0.5],
-    '3': [0.25, 0.25],
-    '4': [0.25, 0.75],
-    '5': [0.75, 0.25],
-    '6': [0.25, 0.75],
-    '7': [0.75, 0.25],
+# Formato da partição
+partition_pu = {
+    '0': [1, 1],        # 2N X 2N
+    '1': [0.5, 0.5],    # 2N X N
+    '2': [0.5, 0.5],    # N X 2N
+    '3': [0.25, 0.25],  # N X N
+    '4': [0.25, 0.75],  # 2N x nU
+    '5': [0.75, 0.25],  # 2N x nD
+    '6': [0.25, 0.75],  # nL x 2N
+    '7': [0.75, 0.25]   # nR x 2N
 }
 
 
@@ -23,7 +24,7 @@ class VideoData(object):
     def __init__(self):
         self.title = ""
         self.resolution = []
-        self.search_range = 0
+        self.search_range = ""
         self.candidate_blocks = 0
         self.data_volume = 0
         self.cu_size = 0
@@ -38,8 +39,11 @@ class VideoData(object):
     def set_search_range(self, search_range):
         self.search_range = search_range
 
-    def increment_candidate_blocks(self, blocks):
-        self.candidate_blocks += blocks
+    def set_cu_size(self, cu_size):
+        self.cu_size = cu_size
+
+    def increment_candidate_blocks(self, candidate_blocks):
+        self.candidate_blocks += candidate_blocks
 
     def increment_data_volume(self, volume):
         self.data_volume += volume
@@ -47,30 +51,35 @@ class VideoData(object):
     def return_string(self):
         string = self.title + ";"
         string += self.resolution[0].__str__() + 'x' + self.resolution[1].__str__() + ";"
-        string += self.search_range.__str__() + ";"
+        string += self.search_range + ";"
         string += self.candidate_blocks.__str__() + ";"
-        string += self.data_volume.__str__()
+        string += int(self.data_volume).__str__()
 
         return string
+
+    def clear(self):
+        self.title = ""
+        self.resolution = []
+        self.search_range = ""
+        self.candidate_blocks = 0
+        self.data_volume = 0
+        self.cu_size = 0
 
 
 class DataReader(object):
     def __init__(self, file_name):
         self.input_file = open(file_name)
+        self.output_file = open("output.txt", 'w')
         self.video_data = VideoData()
 
     def read_data(self):
         for line in self.input_file:
             self.process_line(line)
 
-        outfile = open("output.txt", 'x')
-        outfile.write(self.video_data.return_string())
-
-        outfile.close()
-        self.input_file.close()
+        self.save_data()
 
     def process_line(self, line):
-        # Pula inicio da codificação e do quadro e da CTU
+        # Pula a linha de inicio da codificação do quadro e da CTU
         if line.startswith('I') or line.startswith('L'):
             return
 
@@ -85,8 +94,7 @@ class DataReader(object):
             self.video_data.increment_candidate_blocks(1)
 
         elif line.startswith('F'):
-            # F <xStart> <yStart>
-            self.video_data.increment_candidate_blocks(blocks[self.video_data.search_range])
+            self.process_first_search()
 
         elif line.startswith('R'):
             self.process_retangle(line)
@@ -98,17 +106,23 @@ class DataReader(object):
     def get_size(self, line):
         # U <xCU> <yCU> <size>
         data = line.split()
-        self.video_data.cu_size = int(data[3])
+        size = int(data[3])
+        self.video_data.set_cu_size(size)
 
     def process_pu(self, line):
         # P <sizePU> <idPart> <ref_frame_id>
         data = line.split()
         pu = data[1]
         id_part = int(data[2])
-        partition = self.video_data.cu_size * size_pu[pu][id_part]
+        partition = partition_pu[pu][id_part] * self.video_data.cu_size
         volume = self.video_data.cu_size * partition
 
         self.video_data.increment_data_volume(volume)
+
+    def process_first_search(self):
+        # F <xStart> <yStart>
+        candidate_blocks = blocks[self.video_data.search_range]
+        self.video_data.increment_candidate_blocks(candidate_blocks)
 
     def process_retangle(self, line):
         # R < xL > < xR > < yT > < yB >
@@ -131,6 +145,12 @@ class DataReader(object):
         self.video_data.set_title(data[0])
         self.video_data.set_resolution(data[1], data[2])
         self.video_data.set_search_range(data[3])
+
+    def save_data(self):
+        self.output_file.write(self.video_data.return_string())
+
+        self.output_file.close()
+        self.input_file.close()
 
 
 def main():
