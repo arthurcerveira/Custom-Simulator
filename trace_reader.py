@@ -19,6 +19,8 @@ partition_pu = {
     '7': [0.75, 0.25]   # nR x 2N
 }
 
+raster_step = 3
+
 
 class VideoData(object):
     def __init__(self):
@@ -28,6 +30,7 @@ class VideoData(object):
         self.candidate_blocks = 0
         self.data_volume = 0
         self.cu_size = 0
+        self.current_volume = 0
 
     def set_title(self, title):
         self.title = title
@@ -76,8 +79,6 @@ class DataReader(object):
         for line in self.input_file:
             self.process_line(line)
 
-        self.save_data()
-
     def process_line(self, line):
         # Pula a linha de inicio da codificação do quadro e da CTU
         if line.startswith('I') or line.startswith('L'):
@@ -90,8 +91,7 @@ class DataReader(object):
             self.process_pu(line)
 
         elif line.startswith('C'):
-            # C <xCand> <yCand>
-            self.video_data.increment_candidate_blocks(1)
+            self.process_block()
 
         elif line.startswith('F'):
             self.process_first_search()
@@ -117,12 +117,19 @@ class DataReader(object):
         partition = partition_pu[pu][id_part] * self.video_data.cu_size
         volume = self.video_data.cu_size * partition
 
-        self.video_data.increment_data_volume(volume)
+        self.video_data.current_volume = volume
+
+    def process_block(self):
+        # C <xCand> <yCand>
+        self.video_data.increment_candidate_blocks(1)
+        self.video_data.increment_data_volume(self.video_data.current_volume)
 
     def process_first_search(self):
         # F <xStart> <yStart>
         candidate_blocks = blocks[self.video_data.search_range]
         self.video_data.increment_candidate_blocks(candidate_blocks)
+
+        self.video_data.increment_data_volume(self.video_data.current_volume * candidate_blocks)
 
     def process_retangle(self, line):
         # R < xL > < xR > < yT > < yB >
@@ -135,8 +142,9 @@ class DataReader(object):
 
         self.video_data.increment_data_volume(volume)
 
-        # TODO
-        # Incrementar o numero de blocos
+        candidate_blocks = (int(self.video_data.search_range) * 2 / raster_step) * 2
+
+        self.video_data.increment_candidate_blocks(candidate_blocks)
 
     def set_info(self, line):
         # <videoName> <width> <height> <searchRange>
@@ -156,6 +164,7 @@ class DataReader(object):
 def main():
     data_reader = DataReader("mem_trace.txt")
     data_reader.read_data()
+    data_reader.save_data()
 
 
 if __name__ == "__main__":
