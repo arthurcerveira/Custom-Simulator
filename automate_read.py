@@ -4,8 +4,10 @@ import subprocess
 from trace_reader import DataReader
 
 TRACE_FILE = "mem_trace.txt"
+
 COMMAND = "bin/TAppEncoderStatic"
 CONFIG = "cfg/encoder_lowdelay_main.cfg"
+
 VIDEO_PATH = "../videos_vitech"
 ENCODER_PATH = "../hm-videomem"
 
@@ -26,17 +28,17 @@ class AutomateRead(object):
 
     @staticmethod
     def parse_video_info(video):
-        # ['../videos', 'vitech/Video_name', 'widthxheight', 'fps.yuv']
+        # video.split("_") = ['../videos', 'vitech/Video_name', 'widthxheight', 'fps.yuv']
         parse = video.split("_")
 
-        # 'vitech/Video_name'
+        # parse[1] = 'vitech/Video_name'
         name = parse[1].split('/')
         name = name[1]
 
-        # 'widthxheight'
+        # parse[2] = 'widthxheight'
         resolution = parse[2].split('x')
 
-        # 'fps.yuv'
+        # parse[3] = 'fps.yuv'
         fps = parse[3].split('.')
         fps = fps[0]
 
@@ -53,14 +55,14 @@ class AutomateRead(object):
     def append_output_file(self):
         with open(TRACE_FILE) as trace:
             self.output_file.write(trace.read())
+        self.output_file.write("\n")
 
     def process_videos(self, path):
         os.chdir(path)
-        info = []
 
         for video in self.video_paths:
             info = self.parse_video_info(video)
-            # ['VideoName', 'Width', 'Height', 'FPS']
+            # info = ['VideoName', 'Width', 'Height', 'FPS']
             self.generate_trace(video, info[1], info[2], info[3])
             self.process_trace()
             self.append_output_file()

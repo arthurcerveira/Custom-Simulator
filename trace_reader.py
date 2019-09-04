@@ -19,7 +19,7 @@ partition_pu = {
     '7': [0.75, 0.25]   # nR x 2N
 }
 
-raster_step = 3
+RASTER_SEARCH = 3
 
 
 class VideoData(object):
@@ -97,7 +97,7 @@ class DataReader(object):
             self.process_first_search()
 
         elif line.startswith('R'):
-            self.process_retangle(line)
+            self.process_rectangle(line)
 
         # Senao se enquadrar em nenhum dos casos, é a linha do título
         else:
@@ -131,7 +131,7 @@ class DataReader(object):
 
         self.video_data.increment_data_volume(self.video_data.current_volume * candidate_blocks)
 
-    def process_retangle(self, line):
+    def process_rectangle(self, line):
         # R < xL > < xR > < yT > < yB >
         data = line.split()
 
@@ -142,7 +142,7 @@ class DataReader(object):
 
         self.video_data.increment_data_volume(volume)
 
-        candidate_blocks = (int(self.video_data.search_range) * 2 / raster_step) * 2
+        candidate_blocks = (int(self.video_data.search_range) * 2 / RASTER_SEARCH) * 2
 
         self.video_data.increment_candidate_blocks(candidate_blocks)
 
