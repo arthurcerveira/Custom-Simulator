@@ -6,16 +6,19 @@ from trace_reader import DataReader
 TRACE_FILE = "mem_trace.txt"
 
 COMMAND = "bin/TAppEncoderStatic"
-CONFIG = "cfg/encoder_lowdelay_main.cfg"
+CONFIG = ["cfg/encoder_lowdelay_main.cfg", "cfg/encoder_randomaccess_main.cfg"]
+VIDEO_CFG_PATH = "cfg/per-sequence/"
 
 VIDEO_PATH = "../videos_vitech"
 ENCODER_PATH = "../hm-videomem"
 
+FRAMES = 9
+SEARCH_RANGE = [64, 96, 128]
+
 
 class AutomateRead(object):
-    def __init__(self, command, config):
+    def __init__(self, command):
         self.command = command
-        self.config = config
         self.video_paths = []
         self.output_file = open("saida.txt", 'w')
         self.data_reader = DataReader(TRACE_FILE)
@@ -27,7 +30,7 @@ class AutomateRead(object):
                 # print(os.path.join(root, f))
 
     @staticmethod
-    def parse_video_info(video):
+    def get_video_cfg(video, path):
         # video.split("_") = ['../videos', 'vitech/Video_name', 'widthxheight', 'fps.yuv']
         parse = video.split("_")
 
@@ -35,18 +38,15 @@ class AutomateRead(object):
         name = parse[1].split('/')
         name = name[1]
 
-        # parse[2] = 'widthxheight'
-        resolution = parse[2].split('x')
+        video_cfg = path + name + ".cfg"
 
-        # parse[3] = 'fps.yuv'
-        fps = parse[3].split('.')
-        fps = fps[0]
+        print(video_cfg)
+        return video_cfg
 
-        return [name, resolution[0], resolution[1], fps]
-
-    def generate_trace(self, video, width, height, fps):
-        cmd_array = [self.command, '-c', self.config, '-i', video, '-wdt', width, '-hgt', height, '-fr', fps, '-f', fps]
-        subprocess.run(cmd_array)
+    def generate_trace(self, video, video_cfg, cfg, sr):
+        cmd_array = [self.command, '-c', cfg, '-c', video_cfg, '-i', video, '-f', FRAMES, '-sr', sr]
+        # print(cmd_array)
+        # subprocess.run(cmd_array)
 
     def process_trace(self):
         self.data_reader.read_data()
@@ -57,20 +57,25 @@ class AutomateRead(object):
             self.output_file.write(trace.read())
         self.output_file.write("\n")
 
-    def process_videos(self, path):
-        os.chdir(path)
-
+    def process_videos(self):
         for video in self.video_paths:
-            info = self.parse_video_info(video)
-            # info = ['VideoName', 'Width', 'Height', 'FPS']
-            self.generate_trace(video, info[1], info[2], info[3])
-            self.process_trace()
-            self.append_output_file()
-            # Apaga o arquivo trace antes de gerar o próximo
-            os.remove(TRACE_FILE)
+            video_cfg = self.get_video_cfg(video, VIDEO_CFG_PATH)
+            for cfg in CONFIG:
+                for sr in SEARCH_RANGE:
+                    self.generate_trace(video, video_cfg, cfg, sr)
+                    # self.process_trace()
+                    # self.append_output_file()
+                    # Apaga o arquivo trace antes de gerar o próximo
+                    # os.remove(TRACE_FILE)
 
 
-# automate_reader = AutomateRead(COMMAND, CONFIG)
-# automate_reader.list_all_videos(VIDEO_PATH)
-# automate_reader.process_videos(ENCODER_PATH)
+def main():
+    os.chdir(ENCODER_PATH)
 
+    automate_reader = AutomateRead(COMMAND)
+    automate_reader.list_all_videos(VIDEO_PATH)
+    automate_reader.process_videos()
+
+
+if __name__ == "__main__":
+    main()
