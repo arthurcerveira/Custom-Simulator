@@ -1,5 +1,5 @@
 # Numero de blocos acessados baseado na janela de busca
-blocks = {
+BLOCKS = {
     '16': 44,
     '32': 60,
     '64': 76,
@@ -8,7 +8,7 @@ blocks = {
 }
 
 # Formato da partição
-partition_pu = {
+PARTITION_PU = {
     '0': [1, 1],        # 2N X 2N
     '1': [0.5, 0.5],    # 2N X N
     '2': [0.5, 0.5],    # N X 2N
@@ -55,7 +55,7 @@ class VideoData(object):
         string = self.title + ";"
         string += self.resolution[0].__str__() + 'x' + self.resolution[1].__str__() + ";"
         string += self.search_range + ";"
-        string += self.candidate_blocks.__str__() + ";"
+        string += int(self.candidate_blocks).__str__() + ";"
         string += int(self.data_volume).__str__()
 
         return string
@@ -70,14 +70,20 @@ class VideoData(object):
 
 
 class DataReader(object):
-    def __init__(self, file_name):
-        self.input_file = open(file_name)
-        self.output_file = open("output.txt", 'w')
+    def __init__(self, input_path):
+        self.input_path = input_path
         self.video_data = VideoData()
+        self.first_line = True
 
-    def read_data(self):
-        for line in self.input_file:
+    def read_data(self, video_title):
+        self.video_data.set_title(video_title)
+
+        input_file = open(self.input_path)
+
+        for line in input_file:
             self.process_line(line)
+
+        input_file.close()
 
     def process_line(self, line):
         # Pula a linha de inicio da codificação do quadro e da CTU
@@ -99,9 +105,13 @@ class DataReader(object):
         elif line.startswith('R'):
             self.process_rectangle(line)
 
-        # Senao se enquadrar em nenhum dos casos, é a linha do título
-        else:
+        # A primeira linha contem as informações do video
+        elif self.first_line:
+            self.first_line = False
             self.set_info(line)
+
+        else:
+            return
 
     def get_size(self, line):
         # U <xCU> <yCU> <size>
@@ -113,8 +123,13 @@ class DataReader(object):
         # P <sizePU> <idPart> <ref_frame_id>
         data = line.split()
         pu = data[1]
-        id_part = int(data[2])
-        partition = partition_pu[pu][id_part] * self.video_data.cu_size
+
+        if int(pu) < 4:
+            partition = PARTITION_PU[pu][0]
+        else:
+            id_part = int(data[2])
+            partition = PARTITION_PU[pu][id_part] * self.video_data.cu_size
+
         volume = self.video_data.cu_size * partition
 
         self.video_data.current_volume = volume
@@ -126,7 +141,7 @@ class DataReader(object):
 
     def process_first_search(self):
         # F <xStart> <yStart>
-        candidate_blocks = blocks[self.video_data.search_range]
+        candidate_blocks = BLOCKS[self.video_data.search_range]
         self.video_data.increment_candidate_blocks(candidate_blocks)
 
         self.video_data.increment_data_volume(self.video_data.current_volume * candidate_blocks)
@@ -147,23 +162,25 @@ class DataReader(object):
         self.video_data.increment_candidate_blocks(candidate_blocks)
 
     def set_info(self, line):
-        # <videoName> <width> <height> <searchRange>
+        # <width> <height> <searchRange>
         data = line.split()
 
-        self.video_data.set_title(data[0])
-        self.video_data.set_resolution(data[1], data[2])
-        self.video_data.set_search_range(data[3])
+        self.video_data.set_resolution(data[0], data[1])
+        self.video_data.set_search_range(data[2])
 
     def save_data(self):
-        self.output_file.write(self.video_data.return_string())
+        output_file = open("trace_reader_output.txt", 'w')
+        output_file.write(self.video_data.return_string())
 
-        self.output_file.close()
-        self.input_file.close()
+        output_file.close()
+
+        self.video_data.clear()
+        self.first_line = True
 
 
 def main():
-    data_reader = DataReader("mem_trace.txt")
-    data_reader.read_data()
+    data_reader = DataReader("../hm-videomem/mem_trace.txt")
+    data_reader.read_data("PartyScene")
     data_reader.save_data()
 
 
