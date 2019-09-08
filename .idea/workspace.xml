@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d326b910-ca8a-4587-a1a2-b4bd3d215007" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/automate_read.py" beforeDir="false" afterPath="$PROJECT_DIR$/automate_read.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trace_reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/trace_reader.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -172,7 +171,7 @@
       <workItem from="1567632166768" duration="3148000" />
       <workItem from="1567696414173" duration="1580000" />
       <workItem from="1567773250791" duration="2155000" />
-      <workItem from="1567793911407" duration="16712000" />
+      <workItem from="1567793911407" duration="17350000" />
     </task>
     <servers />
   </component>
