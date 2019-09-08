@@ -3,70 +3,81 @@ import subprocess
 
 from trace_reader import DataReader
 
-TRACE_FILE = "mem_trace.txt"
+TRACE_INPUT = "mem_trace.txt"
+TRACE_OUTPUT = "trace_reader_output.txt"
 
 COMMAND = "bin/TAppEncoderStatic"
-CONFIG = ["cfg/encoder_lowdelay_main.cfg", "cfg/encoder_randomaccess_main.cfg"]
+ENCODER = "HEVC"
+CONFIG = [["cfg/encoder_randomaccess_main.cfg", "Random Access"], ["cfg/encoder_lowdelay_main.cfg", "Low Delay"]]
 VIDEO_CFG_PATH = "cfg/per-sequence/"
 
 VIDEO_PATH = "../videos_vitech"
 ENCODER_PATH = "../hm-videomem"
 
-FRAMES = 9
-SEARCH_RANGE = [64, 96, 128]
+FRAMES = '9'
+SEARCH_RANGE = ['64', '96', '128']
 
 
 class AutomateRead(object):
     def __init__(self, command):
         self.command = command
         self.video_paths = []
-        self.output_file = open("saida.txt", 'w')
-        self.data_reader = DataReader(TRACE_FILE)
+        self.output_file = open("automate_read_output.txt", 'w')
+        self.data_reader = DataReader(TRACE_INPUT)
 
     def list_all_videos(self, path):
-        for root, directory, file in os.walk(path):
-            for f in file:
+        for root, directory, files in os.walk(path):
+            for f in files:
                 self.video_paths.append(os.path.join(root, f))
-                # print(os.path.join(root, f))
 
     @staticmethod
-    def get_video_cfg(video, path):
-        # video.split("_") = ['../videos', 'vitech/Video_name', 'widthxheight', 'fps.yuv']
+    def get_video_title(video):
+        # video.split("_") = ['../video', 'sequences/Video_name', 'widthxheight', 'fps.yuv']
         parse = video.split("_")
 
-        # parse[1] = 'vitech/Video_name'
-        name = parse[1].split('/')
-        name = name[1]
+        # parse[1] = 'sequences/Video_name'
+        title = parse[1].split('/')
+        title = title[1]
 
-        video_cfg = path + name + ".cfg"
+        return title
 
-        print(video_cfg)
+    @staticmethod
+    def get_video_cfg(title, path):
+        video_cfg = path + title + ".cfg"
+
         return video_cfg
 
     def generate_trace(self, video, video_cfg, cfg, sr):
         cmd_array = [self.command, '-c', cfg, '-c', video_cfg, '-i', video, '-f', FRAMES, '-sr', sr]
-        # print(cmd_array)
-        # subprocess.run(cmd_array)
 
-    def process_trace(self):
-        self.data_reader.read_data()
+        subprocess.run(cmd_array)
+
+    def process_trace(self, video_title, encoder, cfg):
+        self.data_reader.read_data(video_title, encoder, cfg)
         self.data_reader.save_data()
 
     def append_output_file(self):
-        with open(TRACE_FILE) as trace:
+        with open(TRACE_OUTPUT) as trace:
             self.output_file.write(trace.read())
+
         self.output_file.write("\n")
 
     def process_videos(self):
-        for video in self.video_paths:
-            video_cfg = self.get_video_cfg(video, VIDEO_CFG_PATH)
+        for video_path in self.video_paths:
+
+            video_title = self.get_video_title(video_path)
+            video_cfg = self.get_video_cfg(video_title, VIDEO_CFG_PATH)
+
             for cfg in CONFIG:
                 for sr in SEARCH_RANGE:
-                    self.generate_trace(video, video_cfg, cfg, sr)
-                    # self.process_trace()
-                    # self.append_output_file()
+                    self.generate_trace(video_path, video_cfg, cfg[0], sr)
+                    self.process_trace(video_title, ENCODER, cfg[1])
+                    self.append_output_file()
                     # Apaga o arquivo trace antes de gerar o próximo
-                    # os.remove(TRACE_FILE)
+                    os.remove(TRACE_INPUT)
+                    os.remove(TRACE_OUTPUT)
+
+        self.output_file.close()
 
 
 def main():
