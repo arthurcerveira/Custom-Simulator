@@ -31,19 +31,12 @@ class VideoData(object):
         self.data_volume = 0
         self.cu_size = 0
         self.current_volume = 0
-
-    def set_title(self, title):
-        self.title = title
+        self.video_encoder = ""
+        self.encoder_config = ""
 
     def set_resolution(self, x, y):
         self.resolution.append(x)
         self.resolution.append(y)
-
-    def set_search_range(self, search_range):
-        self.search_range = search_range
-
-    def set_cu_size(self, cu_size):
-        self.cu_size = cu_size
 
     def increment_candidate_blocks(self, candidate_blocks):
         self.candidate_blocks += candidate_blocks
@@ -52,7 +45,9 @@ class VideoData(object):
         self.data_volume += volume
 
     def return_string(self):
-        string = self.title + ";"
+        string = self.video_encoder + ";"
+        string += self.encoder_config + ";"
+        string += self.title + ";"
         string += self.resolution[0].__str__() + 'x' + self.resolution[1].__str__() + ";"
         string += self.search_range + ";"
         string += int(self.candidate_blocks).__str__() + ";"
@@ -75,8 +70,10 @@ class DataReader(object):
         self.video_data = VideoData()
         self.first_line = True
 
-    def read_data(self, video_title):
-        self.video_data.set_title(video_title)
+    def read_data(self, video_title, video_encoder, encoder_cfg):
+        self.video_data.title = video_title
+        self.video_data.video_encoder = video_encoder
+        self.video_data.encoder_config = encoder_cfg
 
         input_file = open(self.input_path)
 
@@ -117,7 +114,7 @@ class DataReader(object):
         # U <xCU> <yCU> <size>
         data = line.split()
         size = int(data[3])
-        self.video_data.set_cu_size(size)
+        self.video_data.cu_size = size
 
     def process_pu(self, line):
         # P <sizePU> <idPart> <ref_frame_id>
@@ -166,7 +163,7 @@ class DataReader(object):
         data = line.split()
 
         self.video_data.set_resolution(data[0], data[1])
-        self.video_data.set_search_range(data[2])
+        self.video_data.search_range = data[2]
 
     def save_data(self):
         output_file = open("trace_reader_output.txt", 'w')
@@ -180,7 +177,7 @@ class DataReader(object):
 
 def main():
     data_reader = DataReader("../hm-videomem/mem_trace.txt")
-    data_reader.read_data("PartyScene")
+    data_reader.read_data("PartyScene", "HEVC", "Random Acces")
     data_reader.save_data()
 
 
