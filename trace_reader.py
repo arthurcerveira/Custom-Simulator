@@ -107,6 +107,14 @@ class DataReader(object):
             self.first_line = False
             self.set_info(line)
 
+        # Codificador VVC
+
+        elif line.startswith("VU"):
+            self.vvc_get_size(line)
+
+        elif line.startswith("VP"):
+            self.vvc_process_PU()
+
         else:
             return
 
@@ -164,6 +172,15 @@ class DataReader(object):
 
         self.video_data.set_resolution(data[0], data[1])
         self.video_data.search_range = data[2]
+
+    def vvc_get_size(self, line):
+        # VU <xCU> <yCU> <size_hor> <size_ver> <depth>
+        data = line.split
+        size = int(data[3]) * int(data[4])
+        self.video_data.cu_size = size
+
+    def vvc_process_PU(self):
+        pass
 
     def save_data(self):
         output_file = open("trace_reader_output.txt", 'w')
