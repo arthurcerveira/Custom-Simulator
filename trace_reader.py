@@ -110,7 +110,7 @@ class DataReader(object):
         # Codificador VVC
 
         elif line.startswith("VU"):
-            self.vvc_get_size(line)
+            self.vvc_get_volume(line)
 
         elif line.startswith("VP"):
             self.vvc_process_PU()
@@ -173,13 +173,13 @@ class DataReader(object):
         self.video_data.set_resolution(data[0], data[1])
         self.video_data.search_range = data[2]
 
-    def vvc_get_size(self, line):
+    def vvc_get_volume(self, line):
         # VU <xCU> <yCU> <size_hor> <size_ver> <depth>
         data = line.split
-        size = int(data[3]) * int(data[4])
-        self.video_data.cu_size = size
+        current_volume = int(data[3]) * int(data[4])
+        self.video_data.current_volume = current_volume
 
-    def vvc_process_PU(self):
+    def vvc_process_pu(self):
         pass
 
     def save_data(self):
