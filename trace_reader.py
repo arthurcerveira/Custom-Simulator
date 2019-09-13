@@ -21,9 +21,9 @@ PARTITION_PU = {
 
 RASTER_SEARCH = 3
 
-TRACE_PATH = "../hm-videomem/mem_trace.txt"
-VIDEO_NAME = "PartyScene"
-ENCODER = "HEVC"
+TRACE_PATH = "vvc_mem_trace.txt"  # ../hm-videomem/mem_trace.txt"
+VIDEO_NAME = "BQSquare"
+ENCODER = "VVC"
 CFG = "Low Delay"
 
 
@@ -56,10 +56,17 @@ class VideoData(object):
     def increment_data_volume(self, volume):
         self.data_volume += volume
 
-    def set_current_partition(self, partition):
-        partition_string = self.current_cu_size.__str__()
-        partition_string += 'x'
-        partition_string += int(partition).__str__()
+    def set_current_partition(self, size_hor, size_ver):
+        # Coloca sempre o maior lado antes
+        if size_hor >= size_ver:
+            partition_string = size_hor.__str__()
+            partition_string += 'x'
+            partition_string += int(size_ver).__str__()
+
+        else:
+            partition_string = int(size_ver).__str__()
+            partition_string += 'x'
+            partition_string += size_hor.__str__()
 
         self.current_partition = partition_string
 
@@ -120,7 +127,8 @@ class DataReader(object):
             self.get_size(line)
 
         elif line.startswith('P'):
-            self.process_pu(line)
+            # self.process_pu(line)
+            return
 
         elif line.startswith('C'):
             self.process_block()
@@ -144,6 +152,7 @@ class DataReader(object):
         elif line.startswith("VP"):
             self.vvc_process_pu()
 
+        # Se não se enquadra nenhum dos casos, pula
         else:
             return
 
@@ -165,7 +174,7 @@ class DataReader(object):
 
         partition = PARTITION_PU[pu][id_part] * self.video_data.current_cu_size
 
-        self.video_data.set_current_partition(partition)
+        self.video_data.set_current_partition(self.video_data.current_cu_size, partition)
 
         volume = self.video_data.current_cu_size * partition
         self.video_data.current_volume = volume
@@ -209,9 +218,16 @@ class DataReader(object):
 
     def vvc_get_volume(self, line):
         # VU <xCU> <yCU> <size_hor> <size_ver> <depth>
-        data = line.split
-        current_volume = int(data[3]) * int(data[4])
+        data = line.split()
+
+        size_hor = int(data[3])
+        size_ver = int(data[4])
+
+        current_volume = size_hor * size_ver
+
         self.video_data.current_volume = current_volume
+
+        self.video_data.set_current_partition(size_hor, size_ver)
 
     def vvc_process_pu(self):
         pass
