@@ -21,9 +21,9 @@ PARTITION_PU = {
 
 RASTER_SEARCH = 3
 
-TRACE_PATH = "vvc_mem_trace.txt"  # ../hm-videomem/mem_trace.txt"
+TRACE_PATH = "../hm-videomem/mem_trace.txt"  # "vvc_mem_trace.txt"
 VIDEO_NAME = "BQSquare"
-ENCODER = "VVC"
+ENCODER = "HEVC"
 CFG = "Low Delay"
 
 
@@ -111,12 +111,9 @@ class DataReader(object):
         self.video_data.video_encoder = video_encoder
         self.video_data.encoder_config = encoder_cfg
 
-        input_file = open(self.input_path)
-
-        for line in input_file:
-            self.process_line(line)
-
-        input_file.close()
+        with open(self.input_path) as input_file:
+            for line in input_file:
+                self.process_line(line)
 
     def process_line(self, line):
         # Pula a linha de inicio da codificação do quadro e da CTU
@@ -127,8 +124,7 @@ class DataReader(object):
             self.get_size(line)
 
         elif line.startswith('P'):
-            # self.process_pu(line)
-            return
+            self.process_pu(line)
 
         elif line.startswith('C'):
             self.process_block()
@@ -233,10 +229,8 @@ class DataReader(object):
         pass
 
     def save_data(self):
-        output_file = open("trace_reader_output.txt", 'w')
-        output_file.write(self.video_data.return_string())
-
-        output_file.close()
+        with open("trace_reader_output.txt", 'w') as output_file:
+            output_file.write(self.video_data.return_string())
 
         self.video_data.clear()
         self.first_line = True
