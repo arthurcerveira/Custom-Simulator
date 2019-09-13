@@ -21,6 +21,11 @@ PARTITION_PU = {
 
 RASTER_SEARCH = 3
 
+TRACE_PATH = "../hm-videomem/mem_trace.txt"
+VIDEO_NAME = "PartyScene"
+ENCODER = "HEVC"
+CFG = "Low Delay"
+
 
 class VideoData(object):
     def __init__(self):
@@ -37,8 +42,8 @@ class VideoData(object):
         self.size_pu_counter = {}
 
         # Variaveis auxiliares
-        self.current_partition = []
-        self.cu_size = 0
+        self.current_partition = ""
+        self.current_cu_size = 0
         self.current_volume = 0
 
     def set_resolution(self, x, y):
@@ -51,14 +56,31 @@ class VideoData(object):
     def increment_data_volume(self, volume):
         self.data_volume += volume
 
+    def set_current_partition(self, partition):
+        partition_string = self.current_cu_size.__str__()
+        partition_string += 'x'
+        partition_string += int(partition).__str__()
+
+        self.current_partition = partition_string
+
+    def increment_pu_counter(self, blocks):
+        # Se não houver a partição atual no pu counter, cria e inicializa em 0
+        self.size_pu_counter.setdefault(self.current_partition, 0)
+
+        self.size_pu_counter[self.current_partition] += blocks
+
     def return_string(self):
-        string = self.video_encoder + ";"
-        string += self.encoder_config + ";"
-        string += self.title + ";"
-        string += self.resolution[0].__str__() + 'x' + self.resolution[1].__str__() + ";"
-        string += self.search_range + ";"
-        string += int(self.candidate_blocks).__str__() + ";"
-        string += int(self.data_volume).__str__()
+        string = self.video_encoder + ';'
+        string += self.encoder_config + ';'
+        string += self.title + ';'
+        string += self.resolution[0].__str__() + 'x' + self.resolution[1].__str__() + ';'
+        string += self.search_range + ';'
+        string += int(self.candidate_blocks).__str__() + ';'
+        string += int(self.data_volume).__str__() + ';'
+
+        for partition, counter in self.size_pu_counter.items():
+            string += partition + ':'
+            string += counter.__str__() + ';'
 
         return string
 
@@ -68,7 +90,7 @@ class VideoData(object):
         self.search_range = ""
         self.candidate_blocks = 0
         self.data_volume = 0
-        self.cu_size = 0
+        self.current_cu_size = 0
 
 
 class DataReader(object):
@@ -129,7 +151,7 @@ class DataReader(object):
         # U <xCU> <yCU> <size>
         data = line.split()
         size = int(data[3])
-        self.video_data.cu_size = size
+        self.video_data.current_cu_size = size
 
     def process_pu(self, line):
         # P <sizePU> <idPart> <ref_frame_id>
@@ -137,13 +159,15 @@ class DataReader(object):
         pu = data[1]
 
         if int(pu) < 4:
-            partition = PARTITION_PU[pu][0]
+            id_part = 0
         else:
             id_part = int(data[2])
-            partition = PARTITION_PU[pu][id_part] * self.video_data.cu_size
 
-        volume = self.video_data.cu_size * partition
+        partition = PARTITION_PU[pu][id_part] * self.video_data.current_cu_size
 
+        self.video_data.set_current_partition(partition)
+
+        volume = self.video_data.current_cu_size * partition
         self.video_data.current_volume = volume
 
     def process_block(self):
@@ -151,12 +175,15 @@ class DataReader(object):
         self.video_data.increment_candidate_blocks(1)
         self.video_data.increment_data_volume(self.video_data.current_volume)
 
+        self.video_data.increment_pu_counter(1)
+
     def process_first_search(self):
         # F <xStart> <yStart>
         candidate_blocks = BLOCKS[self.video_data.search_range]
         self.video_data.increment_candidate_blocks(candidate_blocks)
 
         self.video_data.increment_data_volume(self.video_data.current_volume * candidate_blocks)
+        self.video_data.increment_pu_counter(candidate_blocks)
 
     def process_rectangle(self, line):
         # R < xL > < xR > < yT > < yB >
@@ -200,8 +227,8 @@ class DataReader(object):
 
 
 def main():
-    data_reader = DataReader("../hm-videomem/mem_trace.txt")
-    data_reader.read_data("PartyScene", "HEVC", "Random Acces")
+    data_reader = DataReader(TRACE_PATH)
+    data_reader.read_data(VIDEO_NAME, ENCODER, CFG)
     data_reader.save_data()
 
 
