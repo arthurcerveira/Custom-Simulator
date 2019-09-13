@@ -8,13 +8,14 @@ TRACE_OUTPUT = "trace_reader_output.txt"
 
 COMMAND = "bin/TAppEncoderStatic"
 ENCODER = "HEVC"
-CONFIG = [["cfg/encoder_randomaccess_main.cfg", "Random Access"], ["cfg/encoder_lowdelay_main.cfg", "Low Delay"]]
+CONFIG = {"Random Access": "cfg/encoder_randomaccess_main.cfg",
+          "Low Delay": "cfg/encoder_lowdelay_main.cfg"}
 VIDEO_CFG_PATH = "cfg/per-sequence/"
 
 VIDEO_PATH = "../videos_vitech"
 ENCODER_PATH = "../hm-videomem"
 
-FRAMES = '9'
+FRAMES = '17'
 SEARCH_RANGE = ['64', '96', '128']
 
 
@@ -68,10 +69,10 @@ class AutomateRead(object):
             video_title = self.get_video_title(video_path)
             video_cfg = self.get_video_cfg(video_title, VIDEO_CFG_PATH)
 
-            for cfg in CONFIG:
+            for cfg, cfg_path in CONFIG.items():
                 for sr in SEARCH_RANGE:
-                    self.generate_trace(video_path, video_cfg, cfg[0], sr)
-                    self.process_trace(video_title, ENCODER, cfg[1])
+                    self.generate_trace(video_path, video_cfg, cfg_path, sr)
+                    self.process_trace(video_title, ENCODER, cfg)
                     self.append_output_file()
                     # Apaga o arquivo trace antes de gerar o próximo
                     os.remove(TRACE_INPUT)

@@ -24,15 +24,22 @@ RASTER_SEARCH = 3
 
 class VideoData(object):
     def __init__(self):
+        # Informações do video codificado
         self.title = ""
         self.resolution = []
         self.search_range = ""
-        self.candidate_blocks = 0
-        self.data_volume = 0
-        self.cu_size = 0
-        self.current_volume = 0
         self.video_encoder = ""
         self.encoder_config = ""
+
+        # Contadores
+        self.candidate_blocks = 0
+        self.data_volume = 0
+        self.size_pu_counter = {}
+
+        # Variaveis auxiliares
+        self.current_partition = []
+        self.cu_size = 0
+        self.current_volume = 0
 
     def set_resolution(self, x, y):
         self.resolution.append(x)
@@ -113,7 +120,7 @@ class DataReader(object):
             self.vvc_get_volume(line)
 
         elif line.startswith("VP"):
-            self.vvc_process_PU()
+            self.vvc_process_pu()
 
         else:
             return
