@@ -6,8 +6,8 @@ from trace_reader import DataReader
 TRACE_INPUT = "mem_trace.txt"
 TRACE_OUTPUT = "trace_reader_output.txt"
 
-COMMAND = "bin/TAppEncoderStatic"
-ENCODER = "HEVC"
+ENCODER_CMD = {"HEVC": "bin/TAppEncoderStatic",
+               "VVC": "path/to/vvc"}
 CONFIG = {"Random Access": "cfg/encoder_randomaccess_main.cfg",
           "Low Delay": "cfg/encoder_lowdelay_main.cfg"}
 VIDEO_CFG_PATH = "cfg/per-sequence/"
@@ -20,8 +20,7 @@ SEARCH_RANGE = ['64', '96', '128']
 
 
 class AutomateRead(object):
-    def __init__(self, command):
-        self.command = command
+    def __init__(self):
         self.video_paths = []
         self.output_file = open("automate_read_output.txt", 'w')
         self.data_reader = DataReader(TRACE_INPUT)
@@ -48,8 +47,9 @@ class AutomateRead(object):
 
         return video_cfg
 
-    def generate_trace(self, video, video_cfg, cfg, sr):
-        cmd_array = [self.command, '-c', cfg, '-c', video_cfg, '-i', video, '-f', FRAMES, '-sr', sr]
+    @staticmethod
+    def generate_trace(command, video, video_cfg, cfg, sr):
+        cmd_array = [command, '-c', cfg, '-c', video_cfg, '-i', video, '-f', FRAMES, '-sr', sr]
 
         subprocess.run(cmd_array)
 
@@ -69,14 +69,15 @@ class AutomateRead(object):
             video_title = self.get_video_title(video_path)
             video_cfg = self.get_video_cfg(video_title, VIDEO_CFG_PATH)
 
-            for cfg, cfg_path in CONFIG.items():
-                for sr in SEARCH_RANGE:
-                    self.generate_trace(video_path, video_cfg, cfg_path, sr)
-                    self.process_trace(video_title, ENCODER, cfg)
-                    self.append_output_file()
-                    # Apaga o arquivo trace antes de gerar o próximo
-                    os.remove(TRACE_INPUT)
-                    os.remove(TRACE_OUTPUT)
+            for encoder, cmd in ENCODER_CMD.items():
+                for cfg, cfg_path in CONFIG.items():
+                    for sr in SEARCH_RANGE:
+                        self.generate_trace(cmd, video_path, video_cfg, cfg_path, sr)
+                        self.process_trace(video_title, encoder, cfg)
+                        self.append_output_file()
+                        # Apaga o arquivo trace antes de gerar o próximo
+                        os.remove(TRACE_INPUT)
+                        os.remove(TRACE_OUTPUT)
 
         self.output_file.close()
 
@@ -84,7 +85,7 @@ class AutomateRead(object):
 def main():
     os.chdir(ENCODER_PATH)
 
-    automate_reader = AutomateRead(COMMAND)
+    automate_reader = AutomateRead()
     automate_reader.list_all_videos(VIDEO_PATH)
     automate_reader.process_videos()
 
