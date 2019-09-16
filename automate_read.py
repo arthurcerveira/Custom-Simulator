@@ -8,11 +8,14 @@ TRACE_OUTPUT = "trace_reader_output.txt"
 
 ENCODER_CMD = {"HEVC": "bin/TAppEncoderStatic",
                "VVC": "path/to/vvc"}
-CONFIG = {"Random Access": "cfg/encoder_randomaccess_main.cfg",
-          "Low Delay": "cfg/encoder_lowdelay_main.cfg"}
-VIDEO_CFG_PATH = "cfg/per-sequence/"
+CONFIG = {"HEVC": {"Random Access": "cfg/encoder_randomaccess_main.cfg",
+                   "Low Delay": "cfg/encoder_lowdelay_main.cfg"},
+          "VVC":  {"Random Access": "path/to/randomaccess_vvc",
+                   "Low Delay": "path/to/lowdeleay_vvc"}}
+VIDEO_CFG_PATH = {"HEVC": "cfg/per-sequence/",
+                  "VVC": "path/to/video_cfg"}
 
-VIDEO_PATH = "../videos_vitech"
+VIDEO_PATH = "../video_sequences"
 ENCODER_PATH = "../hm-videomem"
 
 FRAMES = '17'
@@ -64,13 +67,12 @@ class AutomateRead(object):
         self.output_file.write("\n")
 
     def process_videos(self):
-        for video_path in self.video_paths:
+        for encoder, cmd in ENCODER_CMD.items():
+            for video_path in self.video_paths:
+                video_title = self.get_video_title(video_path)
+                video_cfg = self.get_video_cfg(video_title, VIDEO_CFG_PATH[encoder])
 
-            video_title = self.get_video_title(video_path)
-            video_cfg = self.get_video_cfg(video_title, VIDEO_CFG_PATH)
-
-            for encoder, cmd in ENCODER_CMD.items():
-                for cfg, cfg_path in CONFIG.items():
+                for cfg, cfg_path in CONFIG[encoder].items():
                     for sr in SEARCH_RANGE:
                         self.generate_trace(cmd, video_path, video_cfg, cfg_path, sr)
                         self.process_trace(video_title, encoder, cfg)
