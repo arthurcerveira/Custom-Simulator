@@ -1,10 +1,14 @@
 # Numero de blocos acessados baseado na janela de busca
 BLOCKS = {
-    '16': 44,
-    '32': 60,
-    '64': 76,
-    '96': 76,
-    '128': 76
+    '1': 4,
+    '2': 8,
+    '4': 8,
+    '8': 8,
+    '16': 16,
+    '32': 16,
+    '64': 16,
+    '128': 16,
+    '256': 16
 }
 
 # Formato da partição
@@ -126,14 +130,17 @@ class DataReader(object):
         elif line.startswith('P'):
             self.process_pu(line)
 
-        elif line.startswith('C'):
+        elif line.startswith('C '):
             self.process_block()
 
         elif line.startswith('F'):
-            self.process_first_search()
+            self.process_first_search(line)
 
         elif line.startswith('R'):
             self.process_rectangle(line)
+
+        elif line.startswith('CE'):
+            return
 
         # A primeira linha contem as informações do video
         elif self.first_line:
@@ -146,7 +153,7 @@ class DataReader(object):
             self.vvc_get_volume(line)
 
         elif line.startswith("VP"):
-            self.vvc_process_pu()
+            return
 
         # Se não se enquadra nenhum dos casos, pula
         else:
@@ -182,28 +189,31 @@ class DataReader(object):
 
         self.video_data.increment_pu_counter(1)
 
-    def process_first_search(self):
-        # F <xStart> <yStart>
-        candidate_blocks = BLOCKS[self.video_data.search_range]
+    def process_first_search(self, line):
+        # F <itID>
+        data = line.split()
+        it_id = data[1]
+
+        candidate_blocks = BLOCKS[it_id]
         self.video_data.increment_candidate_blocks(candidate_blocks)
 
         self.video_data.increment_data_volume(self.video_data.current_volume * candidate_blocks)
         self.video_data.increment_pu_counter(candidate_blocks)
 
     def process_rectangle(self, line):
-        # R < xL > < xR > < yT > < yB >
+        # R <xL> <xR> <yT> <yB> <step>
         data = line.split()
 
-        x = int(data[2]) - int(data[1])
-        y = int(data[4]) - int(data[3])
+        ver_size = int(data[2]) - int(data[1])
+        hor_size = int(data[4]) - int(data[3])
 
-        volume = x*y
-
-        self.video_data.increment_data_volume(volume)
-
-        candidate_blocks = (int(self.video_data.search_range) * 2 / RASTER_SEARCH) * 2
-
+        candidate_blocks = (ver_size / RASTER_SEARCH) + (hor_size / RASTER_SEARCH)
         self.video_data.increment_candidate_blocks(candidate_blocks)
+
+        self.video_data.increment_pu_counter(candidate_blocks)
+
+        volume = candidate_blocks * self.video_data.current_cu_size
+        self.video_data.increment_data_volume(volume)
 
     def set_info(self, line):
         # <width> <height> <searchRange>
@@ -224,9 +234,6 @@ class DataReader(object):
         self.video_data.current_volume = current_volume
 
         self.video_data.set_current_partition(size_hor, size_ver)
-
-    def vvc_process_pu(self):
-        pass
 
     def save_data(self):
         with open("trace_reader_output.txt", 'w') as output_file:

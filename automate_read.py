@@ -6,8 +6,8 @@ from trace_reader import DataReader
 TRACE_INPUT = "mem_trace.txt"
 TRACE_OUTPUT = "trace_reader_output.txt"
 
-ENCODER_CMD = {"HEVC": "bin/TAppEncoderStatic",
-               "VVC": "path/to/vvc"}
+ENCODER_CMD = {"HEVC": "bin/TAppEncoderStatic"}  # ,
+               # "VVC": "path/to/vvc"}
 CONFIG = {"HEVC": {"Random Access": "cfg/encoder_randomaccess_main.cfg",
                    "Low Delay": "cfg/encoder_lowdelay_main.cfg"},
           "VVC":  {"Random Access": "path/to/randomaccess_vvc",
@@ -66,22 +66,19 @@ class AutomateRead(object):
 
         self.output_file.write("\n")
 
-    def process_videos(self):
+    def process_video(self, video_path):
         for encoder, cmd in ENCODER_CMD.items():
-            for video_path in self.video_paths:
-                video_title = self.get_video_title(video_path)
-                video_cfg = self.get_video_cfg(video_title, VIDEO_CFG_PATH[encoder])
+            video_title = self.get_video_title(video_path)
+            video_cfg = self.get_video_cfg(video_title, VIDEO_CFG_PATH[encoder])
 
-                for cfg, cfg_path in CONFIG[encoder].items():
-                    for sr in SEARCH_RANGE:
-                        self.generate_trace(cmd, video_path, video_cfg, cfg_path, sr)
-                        self.process_trace(video_title, encoder, cfg)
-                        self.append_output_file()
-                        # Apaga o arquivo trace antes de gerar o próximo
-                        os.remove(TRACE_INPUT)
-                        os.remove(TRACE_OUTPUT)
-
-        self.output_file.close()
+            for cfg, cfg_path in CONFIG[encoder].items():
+                for sr in SEARCH_RANGE:
+                    self.generate_trace(cmd, video_path, video_cfg, cfg_path, sr)
+                    self.process_trace(video_title, encoder, cfg)
+                    self.append_output_file()
+                    # Apaga o arquivo trace antes de gerar o próximo
+                    os.remove(TRACE_INPUT)
+                    os.remove(TRACE_OUTPUT)
 
 
 def main():
@@ -89,7 +86,11 @@ def main():
 
     automate_reader = AutomateRead()
     automate_reader.list_all_videos(VIDEO_PATH)
-    automate_reader.process_videos()
+
+    for video_path in automate_reader.video_paths:
+        automate_reader.process_video(video_path)
+
+    automate_reader.output_file.close()
 
 
 if __name__ == "__main__":
