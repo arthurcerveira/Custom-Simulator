@@ -120,11 +120,7 @@ class DataReader(object):
                 self.process_line(line)
 
     def process_line(self, line):
-        # Pula a linha de inicio da codificação do quadro e da CTU
-        if line.startswith('I') or line.startswith('L'):
-            return
-
-        elif line.startswith('U'):
+        if line.startswith('U'):
             self.get_size(line)
 
         elif line.startswith('P'):
@@ -139,21 +135,14 @@ class DataReader(object):
         elif line.startswith('R'):
             self.process_rectangle(line)
 
-        elif line.startswith('CE'):
-            return
+        # Codificador VVC
+        elif line.startswith("VU"):
+            self.vvc_get_volume(line)
 
         # A primeira linha contem as informações do video
         elif self.first_line:
             self.first_line = False
             self.set_info(line)
-
-        # Codificador VVC
-
-        elif line.startswith("VU"):
-            self.vvc_get_volume(line)
-
-        elif line.startswith("VP"):
-            return
 
         # Se não se enquadra nenhum dos casos, pula
         else:

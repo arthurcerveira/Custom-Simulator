@@ -6,14 +6,14 @@ from trace_reader import DataReader
 TRACE_INPUT = "mem_trace.txt"
 TRACE_OUTPUT = "trace_reader_output.txt"
 
-ENCODER_CMD = {"HEVC": "bin/TAppEncoderStatic"}  # ,
-               # "VVC": "path/to/vvc"}
-CONFIG = {"HEVC": {"Random Access": "cfg/encoder_randomaccess_main.cfg",
-                   "Low Delay": "cfg/encoder_lowdelay_main.cfg"},
-          "VVC":  {"Random Access": "path/to/randomaccess_vvc",
-                   "Low Delay": "path/to/lowdeleay_vvc"}}
+ENCODER_CMD = {"HEVC": "bin/TAppEncoderStatic",
+               "VVC": "../vtm-mem/bin/EncoderAppStatic"}
+CONFIG = {"HEVC": {"Low Delay": "cfg/encoder_lowdelay_main.cfg",
+                   "Random Access": "cfg/encoder_randomaccess_main.cfg"},
+          "VVC":  {"Low Delay": "../vtm-mem/cfg/encoder_lowdelay_vtm.cfg",
+                   "Random Access": "../vtm-mem/cfg/encoder_randomaccess_vtm.cfg"}}
 VIDEO_CFG_PATH = {"HEVC": "cfg/per-sequence/",
-                  "VVC": "path/to/video_cfg"}
+                  "VVC": "../vtm-mem/cfg/per-sequence/"}
 
 VIDEO_PATH = "../video_sequences"
 ENCODER_PATH = "../hm-videomem"
