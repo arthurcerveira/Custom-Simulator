@@ -26,8 +26,7 @@ PARTITION_PU = {
 RASTER_SEARCH = 3
 
 TRACE_PATH = "../hm-videomem/mem_trace.txt"  # "vvc_mem_trace.txt"
-VIDEO_NAME = "BQSquare"
-ENCODER = "HEVC"
+VIDEO_NAME = "BasketballDrive"
 CFG = "Low Delay"
 
 
@@ -110,9 +109,8 @@ class DataReader(object):
         self.video_data = VideoData()
         self.first_line = True
 
-    def read_data(self, video_title, video_encoder, encoder_cfg):
+    def read_data(self, video_title, encoder_cfg):
         self.video_data.title = video_title
-        self.video_data.video_encoder = video_encoder
         self.video_data.encoder_config = encoder_cfg
 
         with open(self.input_path) as input_file:
@@ -120,19 +118,19 @@ class DataReader(object):
                 self.process_line(line)
 
     def process_line(self, line):
-        if line.startswith('U'):
+        if line.startswith('U '):
             self.get_size(line)
 
-        elif line.startswith('P'):
+        elif line.startswith('P '):
             self.process_pu(line)
 
         elif line.startswith('C '):
             self.process_block()
 
-        elif line.startswith('F'):
+        elif line.startswith('F '):
             self.process_first_search(line)
 
-        elif line.startswith('R'):
+        elif line.startswith('R '):
             self.process_rectangle(line)
 
         # Codificador VVC
@@ -157,6 +155,11 @@ class DataReader(object):
     def process_pu(self, line):
         # P <sizePU> <idPart> <ref_frame_id>
         data = line.split()
+
+        # Garante que P esta formatado certo
+        if data.__len__() != 4:
+            return
+
         pu = data[1]
 
         if int(pu) < 4:
@@ -196,7 +199,7 @@ class DataReader(object):
         ver_size = int(data[2]) - int(data[1])
         hor_size = int(data[4]) - int(data[3])
 
-        candidate_blocks = (ver_size / RASTER_SEARCH) + (hor_size / RASTER_SEARCH)
+        candidate_blocks = int((ver_size / RASTER_SEARCH) + (hor_size / RASTER_SEARCH))
         self.video_data.increment_candidate_blocks(candidate_blocks)
 
         self.video_data.increment_pu_counter(candidate_blocks)
@@ -205,11 +208,12 @@ class DataReader(object):
         self.video_data.increment_data_volume(volume)
 
     def set_info(self, line):
-        # <width> <height> <searchRange>
+        # <encoder> <name> <width> <height> <searchRange>
         data = line.split()
 
-        self.video_data.set_resolution(data[0], data[1])
-        self.video_data.search_range = data[2]
+        self.video_data.video_encoder = data[0]
+        self.video_data.set_resolution(data[2], data[3])
+        self.video_data.search_range = data[4]
 
     def vvc_get_volume(self, line):
         # VU <xCU> <yCU> <size_hor> <size_ver> <depth>
@@ -234,7 +238,7 @@ class DataReader(object):
 
 def main():
     data_reader = DataReader(TRACE_PATH)
-    data_reader.read_data(VIDEO_NAME, ENCODER, CFG)
+    data_reader.read_data(VIDEO_NAME, CFG)
     data_reader.save_data()
 
 

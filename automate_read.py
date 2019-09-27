@@ -18,14 +18,18 @@ VIDEO_CFG_PATH = {"HEVC": "cfg/per-sequence/",
 VIDEO_PATH = "../video_sequences"
 ENCODER_PATH = "../hm-videomem"
 
-FRAMES = '17'
+FRAMES = '9'
 SEARCH_RANGE = ['64', '96', '128']
 
 
 class AutomateRead(object):
     def __init__(self):
         self.video_paths = []
-        self.output_file = open("automate_read_output.txt", 'w')
+
+        # Cria o arquivo de saida
+        output_file = open("automate_read_output.txt", 'w+')
+        output_file.close()
+
         self.data_reader = DataReader(TRACE_INPUT)
 
     def list_all_videos(self, path):
@@ -56,15 +60,16 @@ class AutomateRead(object):
 
         subprocess.run(cmd_array)
 
-    def process_trace(self, video_title, encoder, cfg):
-        self.data_reader.read_data(video_title, encoder, cfg)
+    def process_trace(self, video_title, cfg):
+        self.data_reader.read_data(video_title, cfg)
         self.data_reader.save_data()
 
-    def append_output_file(self):
+    @staticmethod
+    def append_output_file():
         with open(TRACE_OUTPUT) as trace:
-            self.output_file.write(trace.read())
-
-        self.output_file.write("\n")
+            with open("automate_read_output.txt", 'a') as automate_read:
+                automate_read.write(trace.read())
+                automate_read.write("\n")
 
     def process_video(self, video_path):
         for encoder, cmd in ENCODER_CMD.items():
@@ -74,7 +79,7 @@ class AutomateRead(object):
             for cfg, cfg_path in CONFIG[encoder].items():
                 for sr in SEARCH_RANGE:
                     self.generate_trace(cmd, video_path, video_cfg, cfg_path, sr)
-                    self.process_trace(video_title, encoder, cfg)
+                    self.process_trace(video_title, cfg)
                     self.append_output_file()
                     # Apaga o arquivo trace antes de gerar o próximo
                     os.remove(TRACE_INPUT)
@@ -89,8 +94,6 @@ def main():
 
     for video_path in automate_reader.video_paths:
         automate_reader.process_video(video_path)
-
-    automate_reader.output_file.close()
 
 
 if __name__ == "__main__":
