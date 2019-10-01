@@ -1,35 +1,46 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from automate_read import SEARCH_RANGE
 
 
 class DataFormatter(object):
     def __init__(self, file_path):
         self.file_path = file_path
+        self.volume = {}
+        self.title = ""
 
-    def generate_graph(self):
-        search_range = ["64", "96", "128"]
-        volume = {"HEVC": [],
-                  "VVC": []}
-
-        x = np.arange(len(search_range))  # localização dos rotulos
-        width = 0.35  # largura das barras
-
+    def get_data(self):
         with open(self.file_path) as file:
             for line in file:
                 # HEVC;Low Delay;BQSquare;416x240;64;22182858;2575891968;
                 data = line.split(';')
-                if data[1] == "Random Access":
-                    volume[data[0]].append(data[5])
+                self.volume.setdefault(data[1], {})
+                self.volume[data[1]].setdefault(data[0], [])
+
+                volume_in_gb = int(data[6])/(1024*1024*1024)
+                self.volume[data[1]][data[0]].append(round(volume_in_gb, 2))
+
+            self.title = data[2]
+
+    def get_title(self, config):
+        return self.title + " - " + config
+
+    @staticmethod
+    def generate_graph(volume, title):
+        x = np.arange(len(SEARCH_RANGE))  # localização dos rotulos
+        width = 0.35  # largura das barras
 
         fig, ax = plt.subplots()
         rects1 = ax.bar(x - width / 2, volume["HEVC"], width, label='HEVC')
         rects2 = ax.bar(x + width / 2, volume["VVC"], width, label='VVC')
 
         ax.set_xlabel('Search Range')
-        ax.set_title('Random Access')
+        ax.set_title(title)
         ax.set_xticks(x)
-        ax.set_xticklabels(search_range)
-        ax.legend()
+        ax.set_xticklabels(SEARCH_RANGE)
+        ax.legend(loc=2, fontsize=9)
+
+        ax.set_ylabel("Volume in GB")
 
         auto_label(rects1, ax)
         auto_label(rects2, ax)
@@ -40,16 +51,23 @@ class DataFormatter(object):
 
 
 def auto_label(rects, ax):
-    """Attach a text label above each bar in *rects*, displaying its height."""
     for rect in rects:
         height = rect.get_height()
         ax.annotate('{}'.format(height),
                     xy=(rect.get_x() + rect.get_width() / 2, height),
-                    xytext=(0, 3),  # 3 points vertical offset
+                    xytext=(0, 0),
                     textcoords="offset points",
                     ha='center', va='bottom')
 
 
+def main():
+    data_formatter = DataFormatter("ard.txt")
+    data_formatter.get_data()
+    for cfg, volume in data_formatter.volume.items():
+        title = data_formatter.get_title(cfg)
+        data_formatter.generate_graph(volume, title)
 
 
+if __name__ == "__main__":
+    main()
 
