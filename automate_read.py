@@ -21,16 +21,19 @@ ENCODER_PATH = "../hm-videomem"
 FRAMES = '9'
 SEARCH_RANGE = ['64', '96', '128']
 
+HEADER = "Video encoder;Encoder Configuration;Video sequence;Resolution;" \
+         "Search range;Candidate blocks;Accessed data;Accessed data (GB);"
+
 
 class AutomateRead(object):
     def __init__(self):
         self.video_paths = []
+        self.data_reader = DataReader(TRACE_INPUT)
 
         # Cria o arquivo de saida
-        output_file = open("automate_read_output.txt", 'w+')
-        output_file.close()
-
-        self.data_reader = DataReader(TRACE_INPUT)
+        with open("automate_read_output.txt", 'w+') as output_file:
+            output_file.write(HEADER)
+            output_file.write(self.data_reader.block_sizes() + '\n')
 
     def list_all_videos(self, path):
         for root, directory, files in os.walk(path):

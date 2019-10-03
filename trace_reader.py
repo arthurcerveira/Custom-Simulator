@@ -23,6 +23,27 @@ PARTITION_PU = {
     '7': [0.75, 0.25]   # nR x 2N
 }
 
+BLOCK_SIZES = {
+    "128x128": 0,
+    "128x64": 0,
+    "64x64": 0,
+    "64x32": 0,
+    "32x32": 0,
+    "64x16": 0,
+    "32x24": 0,
+    "32x16": 0,
+    "64x8": 0,
+    "16x16": 0,
+    "32x8": 0,
+    "64x4": 0,
+    "16x12": 0,
+    "16x8": 0,
+    "32x4": 0,
+    "8x8": 0,
+    "16x4": 0,
+    "8x4": 0
+}
+
 RASTER_SEARCH = 3
 
 TRACE_PATH = "../hm-videomem/mem_trace.txt"  # "vvc_mem_trace.txt"
@@ -42,7 +63,7 @@ class VideoData(object):
         # Contadores
         self.candidate_blocks = 0
         self.data_volume = 0
-        self.size_pu_counter = {}
+        self.size_pu_counter = BLOCK_SIZES
 
         # Variaveis auxiliares
         self.current_partition = ""
@@ -87,9 +108,10 @@ class VideoData(object):
         string += self.search_range + ';'
         string += int(self.candidate_blocks).__str__() + ';'
         string += int(self.data_volume).__str__() + ';'
+        volume_in_gb = int(self.data_volume)/(1024*1024*1024)
+        string += round(volume_in_gb, 2).__str__() + ';'
 
         for partition, counter in self.size_pu_counter.items():
-            string += partition + ':'
             string += counter.__str__() + ';'
 
         return string
@@ -101,6 +123,7 @@ class VideoData(object):
         self.candidate_blocks = 0
         self.data_volume = 0
         self.current_cu_size = 0
+        self.size_pu_counter = BLOCK_SIZES
 
 
 class DataReader(object):
@@ -227,6 +250,14 @@ class DataReader(object):
         self.video_data.current_volume = current_volume
 
         self.video_data.set_current_partition(size_hor, size_ver)
+
+    def block_sizes(self):
+        block_size_string = ""
+
+        for block_size, counter in self.video_data.size_pu_counter.items():
+            block_size_string += block_size + ";"
+
+        return block_size_string
 
     def save_data(self):
         with open("trace_reader_output.txt", 'w') as output_file:
