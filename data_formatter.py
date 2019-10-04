@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from automate_read import SEARCH_RANGE
+from matplotlib.backends.backend_pdf import PdfPages
+
+FILE_PATH = "../hm-videomem/automate_read_output.txt"
 
 
 class DataFormatter(object):
@@ -9,8 +12,14 @@ class DataFormatter(object):
         self.volume = {}
 
     def get_data(self):
+        first_line = True
+
         with open(self.file_path) as file:
             for line in file:
+                if first_line:
+                    first_line = False
+                    continue
+
                 # HEVC;Low Delay;BQSquare;416x240;64;22182858;2575891968;
                 data = line.split(';')
                 self.volume.setdefault(data[2], {})
@@ -18,7 +27,7 @@ class DataFormatter(object):
                 self.volume[data[2]].setdefault(data[1], {})
                 self.volume[data[2]][data[1]].setdefault(data[0], [])
 
-                self.volume[data[2]][data[1]][data[0]].append(int(data[7]))
+                self.volume[data[2]][data[1]][data[0]].append(float(data[7]))
 
     @staticmethod
     def get_title(config, title):
@@ -46,7 +55,8 @@ class DataFormatter(object):
 
         fig.tight_layout()
 
-        plt.show()
+        # plt.show()
+        return fig
 
 
 def auto_label(rects, ax):
@@ -60,12 +70,18 @@ def auto_label(rects, ax):
 
 
 def main():
-    data_formatter = DataFormatter("automate_read.txt")
+    data_formatter = DataFormatter(FILE_PATH)
     data_formatter.get_data()
+
+    figs = []
     for title, video_data in data_formatter.volume.items():
         for cfg, volume in video_data.items():
             graph_title = data_formatter.get_title(title, cfg)
-            data_formatter.generate_graph(volume, graph_title)
+            figs.append(data_formatter.generate_graph(volume, graph_title))
+
+    with PdfPages('graphs.pdf') as pdf:
+        for fig in figs:
+            pdf.savefig(fig)
 
 
 if __name__ == "__main__":
