@@ -123,7 +123,8 @@ class VideoData(object):
         self.candidate_blocks = 0
         self.data_volume = 0
         self.current_cu_size = 0
-        self.size_pu_counter = BLOCK_SIZES
+        for size in self.size_pu_counter:
+            self.size_pu_counter[size] = 0
 
 
 class DataReader(object):
