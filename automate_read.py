@@ -2,24 +2,31 @@ import os
 import subprocess
 
 from trace_reader import DataReader
+from data_formatter import generate_graph
 
+# Routines
+GENERATE_GRAPH = True
+
+# Paths
 TRACE_INPUT = "mem_trace.txt"
 TRACE_OUTPUT = "trace_reader_output.txt"
 
-ENCODER_CMD = {"HEVC": "bin/TAppEncoderStatic",
+AUTOMATE_READ_OUTPUT = "automate_read_output.txt"
+
+ENCODER_CMD = {"HEVC": "../hm-videomem/bin/TAppEncoderStatic",
                "VVC": "../vtm-mem/bin/EncoderAppStatic"}
-CONFIG = {"HEVC": {"Low Delay": "cfg/encoder_lowdelay_main.cfg",
-                   "Random Access": "cfg/encoder_randomaccess_main.cfg"},
+CONFIG = {"HEVC": {"Low Delay": "../hm-videomem/cfg/encoder_lowdelay_main.cfg",
+                   "Random Access": "../hm-videomem/cfg/encoder_randomaccess_main.cfg"},
           "VVC":  {"Low Delay": "../vtm-mem/cfg/encoder_lowdelay_vtm.cfg",
                    "Random Access": "../vtm-mem/cfg/encoder_randomaccess_vtm.cfg"}}
-VIDEO_CFG_PATH = {"HEVC": "cfg/per-sequence/",
+VIDEO_CFG_PATH = {"HEVC": "../hm-videomem/cfg/per-sequence/",
                   "VVC": "../vtm-mem/cfg/per-sequence/"}
 
 VIDEO_PATH = "../video_sequences"
-ENCODER_PATH = "../hm-videomem"
 
+# Parameters
 FRAMES = '9'
-SEARCH_RANGE = ['64', '96', '128']
+SEARCH_RANGE = ['64', '96', '128', '256']
 
 HEADER = "Video encoder;Encoder Configuration;Video sequence;Resolution;" \
          "Search range;Candidate blocks;Accessed data;Accessed data (GB);"
@@ -31,7 +38,7 @@ class AutomateRead(object):
         self.data_reader = DataReader(TRACE_INPUT)
 
         # Cria o arquivo de saida
-        with open("automate_read_output.txt", 'w+') as output_file:
+        with open(AUTOMATE_READ_OUTPUT, 'w+') as output_file:
             output_file.write(HEADER)
             output_file.write(self.data_reader.block_sizes() + '\n')
 
@@ -70,7 +77,7 @@ class AutomateRead(object):
     @staticmethod
     def append_output_file():
         with open(TRACE_OUTPUT) as trace:
-            with open("automate_read_output.txt", 'a') as automate_read:
+            with open(AUTOMATE_READ_OUTPUT, 'a') as automate_read:
                 automate_read.write(trace.read())
                 automate_read.write("\n")
 
@@ -90,13 +97,14 @@ class AutomateRead(object):
 
 
 def main():
-    os.chdir(ENCODER_PATH)
-
     automate_reader = AutomateRead()
     automate_reader.list_all_videos(VIDEO_PATH)
 
     for video_path in automate_reader.video_paths:
         automate_reader.process_video(video_path)
+
+    if GENERATE_GRAPH is True:
+        generate_graph(AUTOMATE_READ_OUTPUT)
 
 
 if __name__ == "__main__":

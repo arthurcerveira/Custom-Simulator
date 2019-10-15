@@ -3,7 +3,7 @@ import numpy as np
 from automate_read import SEARCH_RANGE
 from matplotlib.backends.backend_pdf import PdfPages
 
-FILE_PATH = "../hm-videomem/automate_read_output.txt"
+FILE_PATH = "automate_read_output.txt"
 
 
 class DataFormatter(object):
@@ -69,8 +69,8 @@ def auto_label(rects, ax):
                     ha='center', va='bottom')
 
 
-def main():
-    data_formatter = DataFormatter(FILE_PATH)
+def generate_graph(path):
+    data_formatter = DataFormatter(path)
     data_formatter.get_data()
 
     figs = []
@@ -85,5 +85,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    generate_graph(FILE_PATH)
 
