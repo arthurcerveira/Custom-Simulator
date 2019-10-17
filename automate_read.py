@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from trace_reader import DataReader
+from data_reader import TraceReader
 from data_formatter import generate_graph
 
 # Routines
@@ -35,7 +35,7 @@ HEADER = "Video encoder;Encoder Configuration;Video sequence;Resolution;" \
 class AutomateRead(object):
     def __init__(self):
         self.video_paths = []
-        self.data_reader = DataReader(TRACE_INPUT)
+        self.data_reader = TraceReader(TRACE_INPUT)
 
         # Cria o arquivo de saida
         with open(AUTOMATE_READ_OUTPUT, 'w+') as output_file:

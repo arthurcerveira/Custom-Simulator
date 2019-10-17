@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d326b910-ca8a-4587-a1a2-b4bd3d215007" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/video_data.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/automate_read.py" beforeDir="false" afterPath="$PROJECT_DIR$/automate_read.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_formatter.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_formatter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trace_reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_reader.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -153,7 +154,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/trace_reader.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data_reader.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -218,7 +219,7 @@
       <workItem from="1570074987579" duration="8761000" />
       <workItem from="1570211863547" duration="5961000" />
       <workItem from="1571069633563" duration="991000" />
-      <workItem from="1571152580684" duration="1579000" />
+      <workItem from="1571152580684" duration="5094000" />
     </task>
     <servers />
   </component>
