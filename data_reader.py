@@ -1,4 +1,5 @@
-from video_data import TraceData
+import json
+from video_data import TraceData, VtuneData
 
 # Numero de blocos acessados baseado na janela de busca
 BLOCKS = {
@@ -28,8 +29,13 @@ PARTITION_PU = {
 RASTER_SEARCH = 3
 
 TRACE_PATH = "../hm-videomem/mem_trace.txt"  # "vvc_mem_trace.txt"
+TRACE_OUTPUT = "trace_reader_output.txt"
 VIDEO_NAME = "BasketballDrive"
 CFG = "Low Delay"
+
+VTUNE_REPORT_PATH = "samples/report_vtune.csv"
+with open('function2module.json','r') as fp:
+    FUNCTIONS_MAP = json.load(fp)
 
 
 class TraceReader(object):
@@ -166,7 +172,7 @@ class TraceReader(object):
         return block_size_string
 
     def save_data(self):
-        with open("trace_reader_output.txt", 'w') as output_file:
+        with open(TRACE_OUTPUT, 'w') as output_file:
             output_file.write(self.trace_data.return_string())
 
         self.trace_data.clear()
@@ -176,12 +182,59 @@ class TraceReader(object):
 class VtuneReader(object):
     def __init__(self, vtune_output_path):
         self.input_path = vtune_output_path
+        self.vtune_data = VtuneData()
+        self.first_line = True
+        self.second_line = True
+
+    def read_data(self):
+        with open(self.input_path) as input_file:
+            for line in input_file:
+                if self.first_line is True:
+                    self.first_line = False
+                    continue
+
+                if self.second_line is True:
+                    self.second_line = False
+                    continue
+
+                self.process_line(line)
+
+    def process_line(self, line):
+        module = self.get_module(line)
+        self.vtune_data.set_module(module)
+
+        load_mem = self.get_load_mem(line)
+        self.vtune_data.increment_load_counter(load_mem, module)
+
+        store_mem = self.get_store_mem(line)
+        self.vtune_data.increment_store_counter(store_mem, module)
+
+    @staticmethod
+    def get_module(line):
+        data = line.split(";")
+        function = data[0]
+        function = function[1::]
+        return FUNCTIONS_MAP[function]
+
+    @staticmethod
+    def get_load_mem(line):
+        data = line.split(";")
+        load_mem = int(data[18])
+        return load_mem
+
+    @staticmethod
+    def get_store_mem(line):
+        data = line.split(";")
+        store_mem = int(data[20])
+        return store_mem
 
 
 def main():
-    trace_reader = TraceReader(TRACE_PATH)
-    trace_reader.read_data(VIDEO_NAME, CFG)
-    trace_reader.save_data()
+    # trace_reader = TraceReader(TRACE_PATH)
+    # trace_reader.read_data(VIDEO_NAME, CFG)
+    # trace_reader.save_data()
+    vtune_reader = VtuneReader(VTUNE_REPORT_PATH)
+    vtune_reader.read_data()
 
 
 if __name__ == "__main__":

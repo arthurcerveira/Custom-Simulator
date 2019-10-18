@@ -1,3 +1,5 @@
+import json
+
 BLOCK_SIZES = {
     "128x128": 0,
     "128x64": 0,
@@ -19,22 +21,25 @@ BLOCK_SIZES = {
     "8x4": 0
 }
 
+with open('function2module.json','r') as fp:
+    FUNCTIONS_MAP = json.load(fp)
+
 
 class VideoData(object):
     def __init__(self):
-        # Informações do video codificado
+        # Encoded video info
         self.title = ""
         self.resolution = []
         self.search_range = ""
         self.video_encoder = ""
         self.encoder_config = ""
 
-        # Contadores
+        # Counter
         self.candidate_blocks = 0
         self.data_volume = 0
         self.size_pu_counter = BLOCK_SIZES
 
-        # Variaveis auxiliares
+        # Aux Variables
         self.current_partition = ""
         self.current_cu_size = 0
         self.current_volume = 0
@@ -104,3 +109,23 @@ class TraceData(VideoData):
 class VtuneData(VideoData):
     def __init__(self):
         super().__init__()
+        self.modules = {}
+
+    def set_module(self, module):
+        # Se o modulo não estiver em modules, cria e inicializa seus contadores em 0
+        self.modules.setdefault(module, {"Loads": 0,
+                                         "Stores": 0})
+
+    def increment_load_counter(self, load_mem, module):
+        self.modules[module]["Loads"] += load_mem
+
+    def increment_store_counter(self, store_mem, module):
+        self.modules[module]["Stores"] += store_mem
+
+
+def main():
+    print(FUNCTIONS_MAP)
+
+
+if __name__ == "__main__":
+    main()
