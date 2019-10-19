@@ -21,7 +21,7 @@ BLOCK_SIZES = {
     "8x4": 0
 }
 
-with open('function2module.json','r') as fp:
+with open('function2module.json', 'r') as fp:
     FUNCTIONS_MAP = json.load(fp)
 
 
@@ -34,6 +34,21 @@ class VideoData(object):
         self.video_encoder = ""
         self.encoder_config = ""
 
+    def set_resolution(self, x, y):
+        self.resolution.append(x)
+        self.resolution.append(y)
+
+    def return_string(self):
+        pass
+
+    def clear(self):
+        pass
+
+
+class TraceData(VideoData):
+    def __init__(self):
+        super().__init__()
+
         # Counter
         self.candidate_blocks = 0
         self.data_volume = 0
@@ -43,10 +58,6 @@ class VideoData(object):
         self.current_partition = ""
         self.current_cu_size = 0
         self.current_volume = 0
-
-    def set_resolution(self, x, y):
-        self.resolution.append(x)
-        self.resolution.append(y)
 
     def increment_candidate_blocks(self, candidate_blocks):
         self.candidate_blocks += candidate_blocks
@@ -101,11 +112,6 @@ class VideoData(object):
             self.size_pu_counter[size] = 0
 
 
-class TraceData(VideoData):
-    def __init__(self):
-        super().__init__()
-
-
 class VtuneData(VideoData):
     def __init__(self):
         super().__init__()
@@ -121,6 +127,12 @@ class VtuneData(VideoData):
 
     def increment_store_counter(self, store_mem, module):
         self.modules[module]["Stores"] += store_mem
+
+    def return_string(self):
+        pass
+
+    def clear(self):
+        pass
 
 
 def main():

@@ -1,6 +1,5 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from automate_read import SEARCH_RANGE
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 FILE_PATH = "automate_read_output.txt"
@@ -85,5 +84,6 @@ def generate_graph(path):
 
 
 if __name__ == "__main__":
+    from automate_read import SEARCH_RANGE
     generate_graph(FILE_PATH)
 
