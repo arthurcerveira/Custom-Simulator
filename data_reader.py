@@ -1,4 +1,5 @@
 import json
+
 from video_data import TraceData, VtuneData
 
 # Numero de blocos acessados baseado na janela de busca
@@ -16,14 +17,14 @@ BLOCKS = {
 
 # Formato da partição
 PARTITION_PU = {
-    '0': [1, 1],        # 2N X 2N
-    '1': [0.5, 0.5],    # 2N X N
-    '2': [0.5, 0.5],    # N X 2N
+    '0': [1, 1],  # 2N X 2N
+    '1': [0.5, 0.5],  # 2N X N
+    '2': [0.5, 0.5],  # N X 2N
     '3': [0.25, 0.25],  # N X N
     '4': [0.25, 0.75],  # 2N x nU
     '5': [0.75, 0.25],  # 2N x nD
     '6': [0.25, 0.75],  # nL x 2N
-    '7': [0.75, 0.25]   # nR x 2N
+    '7': [0.75, 0.25]  # nR x 2N
 }
 
 RASTER_SEARCH = 3
@@ -34,7 +35,7 @@ VIDEO_NAME = "BasketballDrive"
 CFG = "Low Delay"
 
 VTUNE_REPORT_PATH = "samples/report_vtune.csv"
-with open('function2module.json','r') as fp:
+with open('function2module.json', 'r') as fp:
     FUNCTIONS_MAP = json.load(fp)
 
 
@@ -180,51 +181,58 @@ class TraceReader(object):
 
 
 class VtuneReader(object):
-    def __init__(self, vtune_output_path):
-        self.input_path = vtune_output_path
+    def __init__(self, vtune_input_path):
+        self.input_path = vtune_input_path
         self.vtune_data = VtuneData()
-        self.first_line = True
-        self.second_line = True
+        self.function_log = "Invalid functions\n"
 
     def read_data(self):
         with open(self.input_path) as input_file:
+            # Pula as duas primeiras linhas
+            next(input_file)
+            next(input_file)
+
             for line in input_file:
-                if self.first_line is True:
-                    self.first_line = False
-                    continue
-
-                if self.second_line is True:
-                    self.second_line = False
-                    continue
-
                 self.process_line(line)
 
     def process_line(self, line):
         module = self.get_module(line)
 
-        if module is None:
+        if module["is_valid"] is False:
+            self.log_function(module)
             return
 
-        self.vtune_data.set_module(module)
+        self.vtune_data.set_module(module["value"])
 
         load_mem = self.get_load_mem(line)
-        self.vtune_data.increment_load_counter(load_mem, module)
+        self.vtune_data.increment_load_counter(load_mem, module["value"])
 
         store_mem = self.get_store_mem(line)
-        self.vtune_data.increment_store_counter(store_mem, module)
+        self.vtune_data.increment_store_counter(store_mem, module["value"])
 
     @staticmethod
     def get_module(line):
         data = line.split(";")
         function = data[0]
+
+        # Retira os espaços em branco do inicio da string
         while function[0] == " ":
             function = function[1::]
 
         try:
-            return FUNCTIONS_MAP[function]
+            module = {
+                "value": FUNCTIONS_MAP[function],
+                "function": function,
+                "is_valid": True
+            }
         except KeyError:
-            print(function)
-            return None
+            module = {
+                "value": None,
+                "function": function,
+                "is_valid": False
+            }
+
+        return module
 
     @staticmethod
     def get_load_mem(line):
@@ -237,6 +245,10 @@ class VtuneReader(object):
         data = line.split(";")
         store_mem = int(data[20])
         return store_mem
+
+    def log_function(self, module):
+        self.function_log += module["function"]
+        self.function_log += '\n'
 
 
 def main():
