@@ -201,6 +201,10 @@ class VtuneReader(object):
 
     def process_line(self, line):
         module = self.get_module(line)
+
+        if module is None:
+            return
+
         self.vtune_data.set_module(module)
 
         load_mem = self.get_load_mem(line)
@@ -213,8 +217,14 @@ class VtuneReader(object):
     def get_module(line):
         data = line.split(";")
         function = data[0]
-        function = function[1::]
-        return FUNCTIONS_MAP[function]
+        while function[0] == " ":
+            function = function[1::]
+
+        try:
+            return FUNCTIONS_MAP[function]
+        except KeyError:
+            print(function)
+            return None
 
     @staticmethod
     def get_load_mem(line):
