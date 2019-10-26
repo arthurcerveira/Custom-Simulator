@@ -21,6 +21,16 @@ BLOCK_SIZES = {
     "8x4": 0
 }
 
+MODULES = ("Inter (IME)",
+           "Inter (FME)",
+           "Intra",
+           "Transf. and Quant.",
+           "Others",
+           "Entropy",
+           "Encoder control",
+           "Current frame",
+           "Filters")
+
 with open('function2module.json', 'r') as fp:
     FUNCTIONS_MAP = json.load(fp)
 
@@ -39,10 +49,20 @@ class VideoData(object):
         self.resolution.append(y)
 
     def return_string(self):
-        pass
+        string = self.video_encoder + ';'
+        string += self.encoder_config + ';'
+        string += self.title + ';'
+        string += self.resolution[0].__str__() + 'x' + self.resolution[1].__str__() + ';'
+        string += self.search_range + ';'
+
+        return string
 
     def clear(self):
-        pass
+        self.title = ""
+        self.resolution.clear()
+        self.search_range = ""
+        self.video_encoder = ""
+        self.encoder_config = ""
 
 
 class TraceData(VideoData):
@@ -86,14 +106,11 @@ class TraceData(VideoData):
         self.size_pu_counter[self.current_partition] += blocks
 
     def return_string(self):
-        string = self.video_encoder + ';'
-        string += self.encoder_config + ';'
-        string += self.title + ';'
-        string += self.resolution[0].__str__() + 'x' + self.resolution[1].__str__() + ';'
-        string += self.search_range + ';'
+        string = super().return_string()
+
         string += int(self.candidate_blocks).__str__() + ';'
         string += int(self.data_volume).__str__() + ';'
-        volume_in_gb = int(self.data_volume)/(1024*1024*1024)
+        volume_in_gb = int(self.data_volume) / (1024 * 1024 * 1024)
         string += round(volume_in_gb, 2).__str__() + ';'
 
         for partition, counter in self.size_pu_counter.items():
@@ -102,9 +119,8 @@ class TraceData(VideoData):
         return string
 
     def clear(self):
-        self.title = ""
-        self.resolution = []
-        self.search_range = ""
+        super().clear()
+
         self.candidate_blocks = 0
         self.data_volume = 0
         self.current_cu_size = 0
@@ -115,6 +131,7 @@ class TraceData(VideoData):
 class VtuneData(VideoData):
     def __init__(self):
         super().__init__()
+
         self.modules = {}
 
     def set_module(self, module):
@@ -129,15 +146,20 @@ class VtuneData(VideoData):
         self.modules[module]["Stores"] += store_mem
 
     def return_string(self):
-        pass
+        string = ""
+
+        for metric in ("Loads", "Stores"):
+            string += super().return_string()
+
+            string += metric + ";"
+
+            for module in MODULES:
+                string += self.modules[module][metric].__str__() + ";"
+
+            string += "\n"
+
+        return string
 
     def clear(self):
-        pass
-
-
-def main():
-    print(FUNCTIONS_MAP)
-
-
-if __name__ == "__main__":
-    main()
+        super().clear()
+        self.modules.clear()

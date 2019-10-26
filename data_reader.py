@@ -35,6 +35,7 @@ VIDEO_NAME = "BasketballDrive"
 CFG = "Low Delay"
 
 VTUNE_REPORT_PATH = "samples/report_vtune.csv"
+VTUNE_REPORT_OUTPUT = "vtune_reader_output.txt"
 with open('function2module.json', 'r') as fp:
     FUNCTIONS_MAP = json.load(fp)
 
@@ -250,6 +251,12 @@ class VtuneReader(object):
         self.function_log += module["function"]
         self.function_log += '\n'
 
+    def save_data(self):
+        with open(VTUNE_REPORT_OUTPUT, 'w') as output_file:
+            output_file.write(self.vtune_data.return_string())
+
+        self.vtune_data.clear()
+
 
 def main():
     # trace_reader = TraceReader(TRACE_PATH)
@@ -257,6 +264,7 @@ def main():
     # trace_reader.save_data()
     vtune_reader = VtuneReader(VTUNE_REPORT_PATH)
     vtune_reader.read_data()
+    vtune_reader.save_data()
 
 
 if __name__ == "__main__":
