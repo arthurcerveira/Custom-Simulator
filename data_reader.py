@@ -1,6 +1,6 @@
 import json
 
-from video_data import TraceData, VtuneData
+from video_data import TraceData, VtuneData, MODULES
 
 # Numero de blocos acessados baseado na janela de busca
 BLOCKS = {
@@ -36,6 +36,7 @@ CFG = "Low Delay"
 
 VTUNE_REPORT_PATH = "samples/report_vtune.csv"
 VTUNE_REPORT_OUTPUT = "vtune_reader_output.txt"
+
 with open('function2module.json', 'r') as fp:
     FUNCTIONS_MAP = json.load(fp)
 
@@ -171,6 +172,8 @@ class TraceReader(object):
         for block_size, counter in self.trace_data.size_pu_counter.items():
             block_size_string += block_size + ";"
 
+        block_size_string += "\n"
+
         return block_size_string
 
     def save_data(self):
@@ -186,6 +189,12 @@ class VtuneReader(object):
         self.input_path = vtune_input_path
         self.vtune_data = VtuneData()
         self.function_log = "Invalid functions\n"
+
+    def set_info(self, title, width, height, encoder, encoder_cfg):
+        self.vtune_data.title = title
+        self.vtune_data.set_resolution(width, height)
+        self.vtune_data.video_encoder = encoder
+        self.vtune_data.encoder_config = encoder_cfg
 
     def read_data(self):
         with open(self.input_path) as input_file:
@@ -250,6 +259,17 @@ class VtuneReader(object):
     def log_function(self, module):
         self.function_log += module["function"]
         self.function_log += '\n'
+
+    @staticmethod
+    def modules_header():
+        module_string = ""
+
+        for module in MODULES:
+            module_string += module + ";"
+
+        module_string += "\n"
+
+        return module_string
 
     def save_data(self):
         with open(VTUNE_REPORT_OUTPUT, 'w') as output_file:
