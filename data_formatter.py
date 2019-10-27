@@ -14,11 +14,10 @@ class DataFormatter(object):
         first_line = True
 
         with open(self.file_path) as file:
-            for line in file:
-                if first_line:
-                    first_line = False
-                    continue
+            # Pula o header
+            next(file)
 
+            for line in file:
                 # HEVC;Low Delay;BQSquare;416x240;64;22182858;2575891968;
                 data = line.split(';')
                 self.volume.setdefault(data[2], {})
@@ -84,6 +83,6 @@ def generate_graph(path):
 
 
 if __name__ == "__main__":
-    from automate_read import SEARCH_RANGE
+    from automate_trace_read import SEARCH_RANGE
     generate_graph(FILE_PATH)
 

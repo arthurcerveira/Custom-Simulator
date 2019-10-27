@@ -32,7 +32,7 @@ HEADER = "Video encoder;Encoder Configuration;Video sequence;Resolution;" \
          "Search range;Candidate blocks;Accessed data;Accessed data (GB);"
 
 
-class AutomateRead(object):
+class AutomateTraceRead(object):
     def __init__(self):
         self.video_paths = []
         self.data_reader = TraceReader(TRACE_INPUT)
@@ -45,7 +45,8 @@ class AutomateRead(object):
     def list_all_videos(self, path):
         for root, directory, files in os.walk(path):
             for f in files:
-                self.video_paths.append(os.path.join(root, f))
+                video_path = os.path.join(root, f)
+                self.video_paths.append(video_path)
 
     @staticmethod
     def get_video_title(video):
@@ -97,7 +98,7 @@ class AutomateRead(object):
 
 
 def main():
-    automate_reader = AutomateRead()
+    automate_reader = AutomateTraceRead()
     automate_reader.list_all_videos(VIDEO_PATH)
 
     for video_path in automate_reader.video_paths:
