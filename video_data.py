@@ -44,9 +44,9 @@ class VideoData(object):
         self.video_encoder = ""
         self.encoder_config = ""
 
-    def set_resolution(self, x, y):
-        self.resolution.append(x)
-        self.resolution.append(y)
+    def set_resolution(self, width, height):
+        self.resolution.append(width)
+        self.resolution.append(height)
 
     def return_string(self):
         string = self.video_encoder + ';'

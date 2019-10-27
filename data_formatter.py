@@ -11,8 +11,6 @@ class DataFormatter(object):
         self.volume = {}
 
     def get_data(self):
-        first_line = True
-
         with open(self.file_path) as file:
             # Pula o header
             next(file)
@@ -83,6 +81,6 @@ def generate_graph(path):
 
 
 if __name__ == "__main__":
-    from automate_trace_read import SEARCH_RANGE
+    from automate_read import SEARCH_RANGE
     generate_graph(FILE_PATH)
 
