@@ -188,13 +188,14 @@ class VtuneReader(object):
     def __init__(self, vtune_input_path):
         self.input_path = vtune_input_path
         self.vtune_data = VtuneData()
-        self.function_log = "Invalid functions\n"
+        self.function_log = set()
 
-    def set_info(self, title, width, height, encoder, encoder_cfg):
+    def set_info(self, title, width, height, encoder, encoder_cfg, sr):
         self.vtune_data.title = title
         self.vtune_data.set_resolution(width, height)
         self.vtune_data.video_encoder = encoder
         self.vtune_data.encoder_config = encoder_cfg
+        self.vtune_data.search_range = sr
 
     def read_data(self):
         with open(self.input_path) as input_file:
@@ -257,8 +258,7 @@ class VtuneReader(object):
         return store_mem
 
     def log_function(self, module):
-        self.function_log += module["function"]
-        self.function_log += '\n'
+        self.function_log.add(module["function"])
 
     @staticmethod
     def modules_header():
