@@ -178,7 +178,7 @@ class TraceReader(object):
 
     def save_data(self):
         with open(TRACE_OUTPUT, 'w') as output_file:
-            output_file.write(self.trace_data.return_string())
+            output_file.write(self.trace_data.return_string() + "\n")
 
         self.trace_data.clear()
         self.first_line = True

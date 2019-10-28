@@ -52,7 +52,7 @@ VIDEO_CFG_PATH = {"HEVC": HM + "cfg/per-sequence/",
 VIDEO_SEQUENCES_PATH = "../video_sequences"
 
 # Parameters
-FRAMES = '2'
+FRAMES = '9'
 SEARCH_RANGE = ['64', '96', '128']
 
 
@@ -69,9 +69,7 @@ def list_all_videos(path):
 
 
 def generate_cmd_array(command, video_path, video_cfg, cfg, sr):
-    cmd_array = [command, '-c', cfg, '-c', video_cfg, '-i', video_path, '-f', FRAMES, '-sr', sr]
-
-    return cmd_array
+    return [command, '-c', cfg, '-c', video_cfg, '-i', video_path, '-f', FRAMES, '-sr', sr]
 
 
 def generate_cmd_str(command, video_path, video_cfg, cfg, sr):
@@ -79,28 +77,24 @@ def generate_cmd_str(command, video_path, video_cfg, cfg, sr):
 
 
 def get_video_info(video_path, cfg_path):
-    # video.split("_") = ['../video', 'sequences/Video_name', 'widthxheight', 'fps.yuv']
-    parse = video_path.split("_")
+    # video_path: '../video_sequences/BQTerrace_1920x1080_60.yuv'
+    parse = video_path.split("/")
+    video_info = parse.pop()
 
-    # parse[1] = 'sequences/Video_name'
-    title = parse[1].split('/')
-    title = title[1]
+    # video_info = ['BQTerrace', '1920x1080', '60.yuv']
+    video_info = video_info.split("_")
 
-    # parse[2] = 'widthxheight'
-    resolution = parse[2].split('x')
+    title = video_info[0]
+
+    resolution = video_info[1].split('x')
     width = resolution[0]
     height = resolution[1]
-
-    # parse[3] = 'fps.yuv'
-    fps = parse[3].split('.')
-    fps = fps[0]
 
     video_cfg = cfg_path + title + ".cfg"
 
     return {"title": title,
             "width": width,
             "height": height,
-            "fps": fps,
             "video_cfg": video_cfg}
 
 
@@ -109,7 +103,6 @@ def append_output_file(routine_output, automate_output):
         with open(automate_output, 'a') as automate_read:
             for line in trace:
                 automate_read.write(line)
-            automate_read.write("\n")
 
 
 class AutomateTraceReader(object):
@@ -160,8 +153,8 @@ class AutomateVtuneReader:
 
     @staticmethod
     def generate_vtune_script(cmd, video_path, video_cfg, cfg_path, sr):
-        cmd_array = generate_cmd_str(cmd, video_path, video_cfg, cfg_path, sr)
-        vtune_cmd = ANALYSE_MEM_CMD + cmd_array + "\n"
+        cmd_str = generate_cmd_str(cmd, video_path, video_cfg, cfg_path, sr)
+        vtune_cmd = ANALYSE_MEM_CMD + cmd_str + "\n"
 
         with open(VTUNE_SCRIPT, "w") as script:
             script.write("#!/bin/sh\n")
@@ -180,8 +173,8 @@ class AutomateVtuneReader:
 
     def log_invalid_functions(self):
         self.invalid_functions = self.invalid_functions.union(self.data_reader.function_log)
-        with open("invalid_funtions.py", 'w') as log:
-            log.write("invalid_functions = " + pprint.pformat(self.invalid_functions))
+        with open("undefined_functions.py", 'w') as log:
+            log.write("functions = " + pprint.pformat(self.invalid_functions))
 
     @staticmethod
     def clean():
