@@ -3,22 +3,35 @@ import json
 BLOCK_SIZES = {
     "128x128": 0,
     "128x64": 0,
+    "64x128": 0,
     "64x64": 0,
     "64x32": 0,
+    "32x64": 0,
     "32x32": 0,
     "64x16": 0,
+    "16x64": 0,
     "32x24": 0,
+    "24x32": 0,
     "32x16": 0,
+    "16x32": 0,
     "64x8": 0,
+    "8x64": 0,
     "16x16": 0,
     "32x8": 0,
+    "8x32": 0,
     "64x4": 0,
+    "4x64": 0,
     "16x12": 0,
+    "12x16": 0,
     "16x8": 0,
+    "8x16": 0,
     "32x4": 0,
+    "4x32": 0,
     "8x8": 0,
     "16x4": 0,
-    "8x4": 0
+    "4x16": 0,
+    "8x4": 0,
+    "4x8": 0
 }
 
 MODULES = ("Inter (IME)",
@@ -86,16 +99,9 @@ class TraceData(VideoData):
         self.data_volume += volume
 
     def set_current_partition(self, size_hor, size_ver):
-        # Coloca sempre o maior lado antes
-        if size_hor >= size_ver:
-            partition_string = size_hor.__str__()
-            partition_string += 'x'
-            partition_string += int(size_ver).__str__()
-
-        else:
-            partition_string = int(size_ver).__str__()
-            partition_string += 'x'
-            partition_string += size_hor.__str__()
+        partition_string = size_hor.__str__()
+        partition_string += 'x'
+        partition_string += int(size_ver).__str__()
 
         self.current_partition = partition_string
 

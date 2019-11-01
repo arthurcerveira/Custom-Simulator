@@ -209,17 +209,19 @@ class VtuneReader(object):
     def process_line(self, line):
         module = self.get_module(line)
 
-        if module["is_valid"] is False:
-            self.log_function(module)
-            return
+        if module["is_valid"] is True:
+            module = module["value"]
+        else:
+            self.log_undefined_function(module)
+            module = "Others"
 
-        self.vtune_data.set_module(module["value"])
+        self.vtune_data.set_module(module)
 
         load_mem = self.get_load_mem(line)
-        self.vtune_data.increment_load_counter(load_mem, module["value"])
+        self.vtune_data.increment_load_counter(load_mem, module)
 
         store_mem = self.get_store_mem(line)
-        self.vtune_data.increment_store_counter(store_mem, module["value"])
+        self.vtune_data.increment_store_counter(store_mem, module)
 
     @staticmethod
     def get_module(line):
@@ -257,7 +259,7 @@ class VtuneReader(object):
         store_mem = int(data[20])
         return store_mem
 
-    def log_function(self, module):
+    def log_undefined_function(self, module):
         self.function_log.add(module["function"])
 
     @staticmethod

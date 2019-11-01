@@ -5,6 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/automate_read.py" beforeDir="false" afterPath="$PROJECT_DIR$/automate_read.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data_reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_reader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/video_data.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -224,7 +225,10 @@
       <workItem from="1571522937177" duration="2711000" />
       <workItem from="1572010989735" duration="20163000" />
       <workItem from="1572212492386" duration="16552000" />
-      <workItem from="1572272819965" duration="727000" />
+      <workItem from="1572272819965" duration="2115000" />
+      <workItem from="1572528629616" duration="3317000" />
+      <workItem from="1572552923583" duration="133000" />
+      <workItem from="1572623424438" duration="2427000" />
     </task>
     <servers />
   </component>

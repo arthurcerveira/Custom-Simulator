@@ -7,10 +7,10 @@ from data_reader import TraceReader, VtuneReader
 from data_formatter import generate_graph
 
 # Routines
-AUTOMATE_TRACE = False
+AUTOMATE_TRACE = True
 GENERATE_GRAPH = False
 
-AUTOMATE_VTUNE = True
+AUTOMATE_VTUNE = False
 
 # Trace Reader
 TRACE_INPUT = "mem_trace.txt"
@@ -53,7 +53,7 @@ VIDEO_SEQUENCES_PATH = "../video_sequences"
 
 # Parameters
 FRAMES = '9'
-SEARCH_RANGE = ['64', '96', '128']
+SEARCH_RANGE = ['128', '256', '384']
 
 
 # Auxiliary Functions
