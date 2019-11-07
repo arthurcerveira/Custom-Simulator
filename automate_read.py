@@ -34,7 +34,7 @@ VTUNE_SCRIPT = "vtune_script.sh"
 DIRECTORY_OUTPUT = "result_dir"
 
 SOURCE_AMPLXE = "source ~/intel/vtune_amplifier_2019/amplxe-vars.sh\n"
-ANALYSE_MEM_CMD = "amplxe-cl -collect memory-access -result-dir " + DIRECTORY_OUTPUT + " -- "
+ANALYSE_MEM_CMD = "amplxe-cl -collect memory-access -data-limit=20000 -result-dir " + DIRECTORY_OUTPUT + " -- "
 GENERATE_CSV_CMD = "amplxe-cl -report top-down -result-dir " + DIRECTORY_OUTPUT + " -report-output " \
                    + VTUNE_REPORT_INPUT + " -format csv -csv-delimiter semicolon\n"
 

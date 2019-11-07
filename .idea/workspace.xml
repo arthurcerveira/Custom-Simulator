@@ -4,7 +4,6 @@
     <list default="true" id="d326b910-ca8a-4587-a1a2-b4bd3d215007" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/automate_read.py" beforeDir="false" afterPath="$PROJECT_DIR$/automate_read.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_formatter.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_formatter.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -28,7 +27,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="Python" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../GitHub/Dijkstra" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -227,7 +226,9 @@
       <workItem from="1572272819965" duration="2115000" />
       <workItem from="1572528629616" duration="3317000" />
       <workItem from="1572552923583" duration="133000" />
-      <workItem from="1572623424438" duration="14414000" />
+      <workItem from="1572623424438" duration="15734000" />
+      <workItem from="1572956987364" duration="29000" />
+      <workItem from="1573002993520" duration="726000" />
     </task>
     <servers />
   </component>
@@ -257,7 +258,7 @@
     <SUITE FILE_PATH="coverage/Custom_Simulator$scratch_1.coverage" NAME="scratch_1 Coverage Results" MODIFIED="1567632581645" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
     <SUITE FILE_PATH="coverage/Trace_Reader$scratch_3.coverage" NAME="scratch_3 Coverage Results" MODIFIED="1568742041775" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
     <SUITE FILE_PATH="coverage/Trace_Reader$scratch_2.coverage" NAME="scratch_2 Coverage Results" MODIFIED="1568741508948" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
-    <SUITE FILE_PATH="coverage/Trace_Reader$data_formatter.coverage" NAME="data_formatter Coverage Results" MODIFIED="1572665269290" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Trace_Reader$data_formatter.coverage" NAME="data_formatter Coverage Results" MODIFIED="1572744935346" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Trace_Reader$trace_reader.coverage" NAME="trace_reader Coverage Results" MODIFIED="1572069739672" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
