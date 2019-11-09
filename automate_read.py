@@ -4,11 +4,11 @@ import subprocess
 import shutil
 
 from data_reader import TraceReader, VtuneReader
-from data_formatter import generate_trace_graph
+from data_formatter import generate_trace_graph, generate_vtune_graph
 
 # Routines
 AUTOMATE_TRACE = True
-GENERATE_TRACE_GRAPH = False
+GENERATE_TRACE_GRAPH = True
 
 AUTOMATE_VTUNE = False
 GENERATE_VTUNE_GRAPH = False
@@ -42,7 +42,8 @@ GENERATE_CSV_CMD = "amplxe-cl -report top-down -result-dir " + DIRECTORY_OUTPUT 
 HM = "../hm-videomem/"
 VTM = "../vtm-mem/"
 
-ENCODER_CMD = {"HEVC": HM + "bin/TAppEncoderStatic"}  # ,"VVC": VTM + "bin/EncoderAppStatic"}
+ENCODER_CMD = {"HEVC": HM + "bin/TAppEncoderStatic",
+               "VVC": VTM + "bin/EncoderAppStatic"}
 CONFIG = {"HEVC": {"Low Delay": HM + "cfg/encoder_lowdelay_main.cfg",
                    "Random Access": HM + "cfg/encoder_randomaccess_main.cfg"},
           "VVC": {"Low Delay": VTM + "cfg/encoder_lowdelay_vtm.cfg",
@@ -53,7 +54,7 @@ VIDEO_CFG_PATH = {"HEVC": HM + "cfg/per-sequence/",
 VIDEO_SEQUENCES_PATH = "../video_sequences"
 
 # Parameters
-FRAMES = '9'
+FRAMES = '17'
 SEARCH_RANGE = ['128', '256', '384']
 
 
@@ -197,7 +198,8 @@ class AutomateVtuneReader:
                     self.generate_vtune_script(cmd, video_path, video_info["video_cfg"], cfg_path, sr)
                     self.run_vtune_script()
 
-                    self.process_report(video_info["title"], video_info["width"], video_info["height"], encoder, cfg, sr)
+                    self.process_report(video_info["title"], video_info["width"], video_info["height"], encoder, cfg,
+                                        sr)
                     append_output_file(VTUNE_REPORT_OUTPUT, AUTOMATE_VTUNE_OUTPUT)
                     self.log_invalid_functions()
 
@@ -229,6 +231,9 @@ def automate_vtune():
 
     for video_path in automate_reader.video_paths:
         automate_reader.process_video(video_path)
+
+    if GENERATE_VTUNE_GRAPH is True:
+        generate_vtune_graph(AUTOMATE_VTUNE_OUTPUT)
 
 
 if __name__ == "__main__":
