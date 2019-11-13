@@ -234,7 +234,8 @@
       <workItem from="1573117796272" duration="7982000" />
       <workItem from="1573177899119" duration="1383000" />
       <workItem from="1573214593496" duration="2000" />
-      <workItem from="1573342960814" duration="110000" />
+      <workItem from="1573342960814" duration="877000" />
+      <workItem from="1573531474668" duration="6678000" />
     </task>
     <servers />
   </component>
@@ -260,11 +261,11 @@
     <SUITE FILE_PATH="coverage/Custom_Simulator$trace_reader.coverage" NAME="trace_reader Coverage Results" MODIFIED="1567907747562" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Trace_Reader$video_data.coverage" NAME="video_data Coverage Results" MODIFIED="1571412996231" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Custom_Simulator$scrtch7.coverage" NAME="scrtch7 Coverage Results" MODIFIED="1567632622548" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Trace_Reader$automate_read.coverage" NAME="automate_read Coverage Results" MODIFIED="1573177924065" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Trace_Reader$automate_read.coverage" NAME="automate_read Coverage Results" MODIFIED="1573676025866" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Custom_Simulator$scratch_1.coverage" NAME="scratch_1 Coverage Results" MODIFIED="1567632581645" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
     <SUITE FILE_PATH="coverage/Trace_Reader$scratch_3.coverage" NAME="scratch_3 Coverage Results" MODIFIED="1568742041775" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
     <SUITE FILE_PATH="coverage/Trace_Reader$scratch_2.coverage" NAME="scratch_2 Coverage Results" MODIFIED="1568741508948" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
-    <SUITE FILE_PATH="coverage/Trace_Reader$data_formatter.coverage" NAME="data_formatter Coverage Results" MODIFIED="1573177918239" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Trace_Reader$data_formatter.coverage" NAME="data_formatter Coverage Results" MODIFIED="1573674512601" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Trace_Reader$trace_reader.coverage" NAME="trace_reader Coverage Results" MODIFIED="1572069739672" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

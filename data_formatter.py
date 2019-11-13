@@ -5,7 +5,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from video_data import MODULES
 
 font = fm.FontProperties(size=5.7)
-FILE_PATH = "automate_read_output.txt"
+FILE_PATH = "automate_trace_output.txt"
 
 
 class DataFormatter(object):
@@ -34,8 +34,8 @@ class DataFormatter(object):
         return title + " - " + config
 
     @staticmethod
-    def generate_trace_graph(volume, title):
-        x = np.arange(len(SEARCH_RANGE))  # localização dos rotulos
+    def generate_trace_graph(volume, title, sr):
+        x = np.arange(len(sr))  # localização dos rotulos
         width = 0.35  # largura das barras
 
         fig, ax = plt.subplots()
@@ -45,7 +45,7 @@ class DataFormatter(object):
         ax.set_xlabel('Search Range')
         ax.set_title(title)
         ax.set_xticks(x)
-        ax.set_xticklabels(SEARCH_RANGE)
+        ax.set_xticklabels(sr)
         ax.legend(loc=2, fontsize=9)
 
         ax.set_ylabel("Volume in GB")
@@ -118,6 +118,7 @@ def auto_label(rects, ax):
 
 
 def generate_trace_graph(path):
+    from automate_read import SEARCH_RANGE
     data_formatter = DataFormatter(path)
     data_formatter.get_trace_data()
 
@@ -125,9 +126,9 @@ def generate_trace_graph(path):
     for title, video_data in data_formatter.volume.items():
         for cfg, volume in video_data.items():
             graph_title = data_formatter.get_title(title, cfg)
-            figs.append(data_formatter.generate_trace_graph(volume, graph_title))
+            figs.append(data_formatter.generate_trace_graph(volume, graph_title, SEARCH_RANGE))
 
-    with PdfPages('graphs.pdf') as pdf:
+    with PdfPages('trace_graphs.pdf') as pdf:
         for fig in figs:
             pdf.savefig(fig)
 
@@ -141,8 +142,8 @@ def generate_vtune_graph(path):
 
 
 if __name__ == "__main__":
-    from automate_read import SEARCH_RANGE
-    # generate_trace_graph(FILE_PATH)
-    generate_vtune_graph("vtune_output.txt")
+
+    generate_trace_graph(FILE_PATH)
+    # generate_vtune_graph("vtune_output.txt")
 
 
