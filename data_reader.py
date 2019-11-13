@@ -29,7 +29,7 @@ PARTITION_PU = {
 
 RASTER_SEARCH = 3
 
-TRACE_PATH = "../hm-videomem/mem_trace.txt"  # "vvc_mem_trace.txt"
+TRACE_PATH = "mem_trace.txt"  # "vvc_mem_trace.txt"
 TRACE_OUTPUT = "trace_reader_output.txt"
 VIDEO_NAME = "BasketballDrive"
 CFG = "Low Delay"
