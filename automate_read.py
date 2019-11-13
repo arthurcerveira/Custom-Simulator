@@ -126,6 +126,13 @@ class AutomateTraceReader(object):
         cmd_array = generate_cmd_array(cmd, video_path, video_cfg, cfg_path, sr)
         subprocess.run(cmd_array)
 
+    @staticmethod
+    def clean():
+        os.remove(TRACE_INPUT)
+        os.remove(TRACE_OUTPUT)
+        os.remove("str.bin")
+        os.remove("rec.yuv")
+
     def process_video(self, video_path):
         for encoder, cmd in ENCODER_CMD.items():
             video_info = get_video_info(video_path, VIDEO_CFG_PATH[encoder])
@@ -138,8 +145,7 @@ class AutomateTraceReader(object):
                     append_output_file(TRACE_OUTPUT, AUTOMATE_TRACE_OUTPUT)
 
                     # Apaga o arquivo trace antes de gerar o próximo
-                    os.remove(TRACE_INPUT)
-                    os.remove(TRACE_OUTPUT)
+                    self.clean()
 
 
 class AutomateVtuneReader:
