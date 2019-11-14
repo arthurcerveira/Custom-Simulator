@@ -1,11 +1,25 @@
 import numpy as np
+import seaborn as sn
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from matplotlib.backends.backend_pdf import PdfPages
-from video_data import MODULES
+
+from video_data import MODULES, BLOCK_SIZES
 
 font = fm.FontProperties(size=5.7)
 FILE_PATH = "automate_trace_output.txt"
+
+MATRIX_INDEX = {
+    '128': 0,
+    '64': 1,
+    '32': 2,
+    '24': 3,
+    '16': 4,
+    '12': 5,
+    '8': 6,
+    '4': 7
+}
 
 
 class DataFormatter(object):
@@ -13,6 +27,7 @@ class DataFormatter(object):
         self.file_path = file_path
         self.volume = {}
         self.loads_stores = {}
+        self.block_matrix = []
 
     def get_trace_data(self):
         with open(self.file_path) as file:
@@ -106,6 +121,50 @@ class DataFormatter(object):
 
         plt.show()
 
+    def generate_matrix(self):
+        matrix = []
+
+        # Initialize the matrix
+        for i in range(8):
+            matrix.append([])
+            for j in range(8):
+                matrix[i].append(0)
+
+        with open(self.file_path) as file:
+            # Pula o header
+            next(file)
+
+            for line in file:
+                data = line.split(';')
+
+                data_index = 8
+                for block in BLOCK_SIZES:
+                    hor_size, ver_size = block.split('x')
+                    block_counter = data[data_index]
+
+                    index = MATRIX_INDEX[hor_size]
+                    column = MATRIX_INDEX[ver_size]
+
+                    matrix[index][column] = int(block_counter)
+                    data_index += 1
+
+                break
+
+        self.block_matrix = matrix
+
+    def generate_block_graph(self):
+        df_cm = pd.DataFrame(self.block_matrix, index=[i for i in MATRIX_INDEX],
+                             columns=[i for i in MATRIX_INDEX])
+        plt.figure(figsize=(10, 10))
+        ax = sn.heatmap(df_cm, annot=True, fmt='d')
+
+        bottom, top = ax.get_ylim()
+        ax.set_ylim(bottom + 0.5, top - 0.5)
+
+        plt.ylabel('True Label')
+        plt.xlabel('Predicted Label')
+        plt.show()
+
 
 def auto_label(rects, ax):
     for rect in rects:
@@ -142,8 +201,8 @@ def generate_vtune_graph(path):
 
 
 if __name__ == "__main__":
-
-    generate_trace_graph(FILE_PATH)
+    # generate_trace_graph(FILE_PATH)
     # generate_vtune_graph("vtune_output.txt")
-
-
+    data_formatter = DataFormatter("trace_1080.txt")
+    data_formatter.generate_matrix()
+    data_formatter.generate_block_graph()
