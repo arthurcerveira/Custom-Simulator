@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="d326b910-ca8a-4587-a1a2-b4bd3d215007" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/automate_read.py" beforeDir="false" afterPath="$PROJECT_DIR$/automate_read.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data_formatter.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_formatter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_reader.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -52,7 +50,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.automate_read">
+  <component name="RunManager" selected="Python.data_formatter">
     <configuration name="automate_read" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Trace-Reader" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -165,8 +163,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.automate_read" />
         <item itemvalue="Python.data_formatter" />
+        <item itemvalue="Python.automate_read" />
         <item itemvalue="Python.scratch_4" />
         <item itemvalue="Python.trace_reader" />
         <item itemvalue="Python.video_data" />
@@ -235,7 +233,9 @@
       <workItem from="1573177899119" duration="1383000" />
       <workItem from="1573214593496" duration="2000" />
       <workItem from="1573342960814" duration="877000" />
-      <workItem from="1573531474668" duration="6678000" />
+      <workItem from="1573531474668" duration="7006000" />
+      <workItem from="1573691874560" duration="9458000" />
+      <workItem from="1573825925211" duration="284000" />
     </task>
     <servers />
   </component>
@@ -265,7 +265,7 @@
     <SUITE FILE_PATH="coverage/Custom_Simulator$scratch_1.coverage" NAME="scratch_1 Coverage Results" MODIFIED="1567632581645" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
     <SUITE FILE_PATH="coverage/Trace_Reader$scratch_3.coverage" NAME="scratch_3 Coverage Results" MODIFIED="1568742041775" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
     <SUITE FILE_PATH="coverage/Trace_Reader$scratch_2.coverage" NAME="scratch_2 Coverage Results" MODIFIED="1568741508948" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
-    <SUITE FILE_PATH="coverage/Trace_Reader$data_formatter.coverage" NAME="data_formatter Coverage Results" MODIFIED="1573674512601" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Trace_Reader$data_formatter.coverage" NAME="data_formatter Coverage Results" MODIFIED="1573699231048" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Trace_Reader$trace_reader.coverage" NAME="trace_reader Coverage Results" MODIFIED="1572069739672" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

@@ -137,16 +137,21 @@ class DataFormatter(object):
             for line in file:
                 data = line.split(';')
 
+                total = 0
                 data_index = 8
                 for block in BLOCK_SIZES:
                     hor_size, ver_size = block.split('x')
-                    block_counter = data[data_index]
+                    block_counter = int(data[data_index])
 
                     index = MATRIX_INDEX[hor_size]
                     column = MATRIX_INDEX[ver_size]
 
-                    matrix[index][column] = int(block_counter)
+                    matrix[index][column] = block_counter
+                    total += block_counter
                     data_index += 1
+
+                for i in range(8):
+                    matrix[i] = list(map(lambda x: (x / total) * 100, matrix[i]))
 
                 break
 
@@ -156,13 +161,13 @@ class DataFormatter(object):
         df_cm = pd.DataFrame(self.block_matrix, index=[i for i in MATRIX_INDEX],
                              columns=[i for i in MATRIX_INDEX])
         plt.figure(figsize=(10, 10))
-        ax = sn.heatmap(df_cm, annot=True, fmt='d')
+        ax = sn.heatmap(df_cm, annot=True, fmt='.2f')
 
         bottom, top = ax.get_ylim()
         ax.set_ylim(bottom + 0.5, top - 0.5)
 
-        plt.ylabel('True Label')
-        plt.xlabel('Predicted Label')
+        plt.ylabel('Vertical Dimension')
+        plt.xlabel('Horizontal Dimension')
         plt.show()
 
 
