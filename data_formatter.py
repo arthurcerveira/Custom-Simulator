@@ -27,7 +27,7 @@ class DataFormatter(object):
         self.file_path = file_path
         self.volume = {}
         self.loads_stores = {}
-        self.block_matrix = []
+        self.block_size_info = {}
 
     def get_trace_data(self):
         with open(self.file_path) as file:
@@ -122,13 +122,8 @@ class DataFormatter(object):
         plt.show()
 
     def generate_matrix(self):
-        matrix = []
-
-        # Initialize the matrix
-        for i in range(8):
-            matrix.append([])
-            for j in range(8):
-                matrix[i].append(0)
+        block_size_dict = {}
+        total_dict = {}
 
         with open(self.file_path) as file:
             # Pula o header
@@ -137,7 +132,20 @@ class DataFormatter(object):
             for line in file:
                 data = line.split(';')
 
-                total = 0
+                title = data[2]
+                encoder = data[0]
+                cfg = data[1]
+
+                block_size_dict.setdefault(title, {})
+                block_size_dict[title].setdefault(encoder, {})
+                block_size_dict[title][encoder].setdefault(cfg, np.zeros((8, 8)))
+
+                matrix = block_size_dict[title][encoder][cfg]
+
+                total_dict.setdefault(title, {})
+                total_dict[title].setdefault(encoder, {})
+                total_dict[title][encoder].setdefault(cfg, 0)
+
                 data_index = 8
                 for block in BLOCK_SIZES:
                     hor_size, ver_size = block.split('x')
@@ -146,19 +154,20 @@ class DataFormatter(object):
                     index = MATRIX_INDEX[hor_size]
                     column = MATRIX_INDEX[ver_size]
 
-                    matrix[index][column] = block_counter
-                    total += block_counter
+                    matrix[index][column] += block_counter
+                    total_dict[title][encoder][cfg] += block_counter
                     data_index += 1
 
                 for i in range(8):
-                    matrix[i] = list(map(lambda x: (x / total) * 100, matrix[i]))
+                    matrix[i] = list(map(lambda x: (x / total_dict[title][encoder][cfg]) * 100, matrix[i]))
 
-                break
+                block_size_dict[title][encoder][cfg] = matrix
 
-        self.block_matrix = matrix
+        self.block_size_info = block_size_dict
 
-    def generate_block_graph(self):
-        df_cm = pd.DataFrame(self.block_matrix, index=[i for i in MATRIX_INDEX],
+    @staticmethod
+    def generate_block_graph(title, encoder, cfg, matrix):
+        df_cm = pd.DataFrame(matrix, index=[i for i in MATRIX_INDEX],
                              columns=[i for i in MATRIX_INDEX])
         plt.figure(figsize=(10, 10))
         ax = sn.heatmap(df_cm, annot=True, fmt='.2f')
@@ -166,6 +175,7 @@ class DataFormatter(object):
         bottom, top = ax.get_ylim()
         ax.set_ylim(bottom + 0.5, top - 0.5)
 
+        plt.title(f'Inter access per CU Size - { title } - { encoder } - { cfg }')
         plt.ylabel('Vertical Dimension')
         plt.xlabel('Horizontal Dimension')
         plt.show()
@@ -205,9 +215,17 @@ def generate_vtune_graph(path):
         data_formatter.generate_vtune_graph(data, video)
 
 
+def generate_block_graph(path):
+    data_formatter = DataFormatter(path)
+    data_formatter.generate_matrix()
+
+    for title, encoder_dict in data_formatter.block_size_info.items():
+        for encoder, cfg_dict in encoder_dict.items():
+            for cfg, matrix in cfg_dict.items():
+                data_formatter.generate_block_graph(title, encoder, cfg, matrix)
+
+
 if __name__ == "__main__":
     # generate_trace_graph(FILE_PATH)
     # generate_vtune_graph("vtune_output.txt")
-    data_formatter = DataFormatter("trace_1080.txt")
-    data_formatter.generate_matrix()
-    data_formatter.generate_block_graph()
+    generate_block_graph("trace_1080.txt")
