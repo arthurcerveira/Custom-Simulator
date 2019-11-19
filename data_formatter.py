@@ -8,7 +8,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from video_data import MODULES, BLOCK_SIZES
 
 font = fm.FontProperties(size=5.7)
-FILE_PATH = "automate_trace_output.txt"
+FILE_PATH = "trace_1080.txt"
 
 MATRIX_INDEX = {
     '128': 0,
@@ -48,8 +48,7 @@ class DataFormatter(object):
     def get_title(config, title):
         return title + " - " + config
 
-    @staticmethod
-    def generate_trace_graph(volume, title, sr):
+    def generate_trace_graph(self, volume, title, sr):
         x = np.arange(len(sr))  # localização dos rotulos
         width = 0.35  # largura das barras
 
@@ -65,8 +64,8 @@ class DataFormatter(object):
 
         ax.set_ylabel("Volume in GB")
 
-        auto_label(rects1, ax)
-        auto_label(rects2, ax)
+        self.auto_label(rects1, ax)
+        self.auto_label(rects2, ax)
 
         fig.tight_layout()
 
@@ -169,26 +168,31 @@ class DataFormatter(object):
     def generate_block_graph(title, encoder, cfg, matrix):
         df_cm = pd.DataFrame(matrix, index=[i for i in MATRIX_INDEX],
                              columns=[i for i in MATRIX_INDEX])
-        plt.figure(figsize=(10, 10))
-        ax = sn.heatmap(df_cm, annot=True, fmt='.2f')
 
-        bottom, top = ax.get_ylim()
-        ax.set_ylim(bottom + 0.5, top - 0.5)
+        fig, ax = plt.subplots()
 
-        plt.title(f'Inter access per CU Size - { title } - { encoder } - { cfg }')
-        plt.ylabel('Vertical Dimension')
-        plt.xlabel('Horizontal Dimension')
-        plt.show()
+        heat_map = sn.heatmap(df_cm, annot=True, fmt='.2f')
 
+        bottom, top = heat_map.get_ylim()
+        heat_map.set_ylim(bottom + 0.5, top - 0.5)
 
-def auto_label(rects, ax):
-    for rect in rects:
-        height = rect.get_height()
-        ax.annotate('{}'.format(height),
-                    xy=(rect.get_x() + rect.get_width() / 2, height),
-                    xytext=(0, 0),
-                    textcoords="offset points",
-                    ha='center', va='bottom')
+        ax.set_title(f'Inter access per CU Size - { title } - { encoder } - { cfg }')
+        ax.set_ylabel('Vertical Dimension')
+        ax.set_xlabel('Horizontal Dimension')
+
+        fig.tight_layout()
+
+        return fig
+
+    @staticmethod
+    def auto_label(rects, ax):
+        for rect in rects:
+            height = rect.get_height()
+            ax.annotate('{}'.format(height),
+                        xy=(rect.get_x() + rect.get_width() / 2, height),
+                        xytext=(0, 0),
+                        textcoords="offset points",
+                        ha='center', va='bottom')
 
 
 def generate_trace_graph(path):
@@ -219,13 +223,19 @@ def generate_block_graph(path):
     data_formatter = DataFormatter(path)
     data_formatter.generate_matrix()
 
+    figs = []
     for title, encoder_dict in data_formatter.block_size_info.items():
         for encoder, cfg_dict in encoder_dict.items():
             for cfg, matrix in cfg_dict.items():
-                data_formatter.generate_block_graph(title, encoder, cfg, matrix)
+                figs.append(data_formatter.generate_block_graph(title, encoder, cfg, matrix))
+                # data_formatter.generate_block_graph(title, encoder, cfg, matrix)
+
+    with PdfPages('block_size_graphs.pdf') as pdf:
+        for fig in figs:
+            pdf.savefig(fig)
 
 
 if __name__ == "__main__":
     # generate_trace_graph(FILE_PATH)
     # generate_vtune_graph("vtune_output.txt")
-    generate_block_graph("trace_1080.txt")
+    generate_block_graph(FILE_PATH)
