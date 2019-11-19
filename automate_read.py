@@ -8,7 +8,7 @@ from data_formatter import generate_trace_graph, generate_vtune_graph
 
 # Routines
 AUTOMATE_TRACE = True
-GENERATE_TRACE_GRAPH = True
+GENERATE_TRACE_GRAPH = False
 
 AUTOMATE_VTUNE = False
 GENERATE_VTUNE_GRAPH = False
@@ -34,9 +34,9 @@ VTUNE_SCRIPT = "vtune_script.sh"
 DIRECTORY_OUTPUT = "result_dir"
 
 SOURCE_AMPLXE = "source ~/intel/vtune_amplifier_2019/amplxe-vars.sh\n"
-ANALYSE_MEM_CMD = "amplxe-cl -collect memory-access -data-limit=20000 -result-dir " + DIRECTORY_OUTPUT + " -- "
-GENERATE_CSV_CMD = "amplxe-cl -report top-down -result-dir " + DIRECTORY_OUTPUT + " -report-output " \
-                   + VTUNE_REPORT_INPUT + " -format csv -csv-delimiter semicolon\n"
+ANALYSE_MEM_CMD = f"amplxe-cl -collect memory-access -data-limit=20000 -result-dir { DIRECTORY_OUTPUT } -- "
+GENERATE_CSV_CMD = f"amplxe-cl -report top-down -result-dir { DIRECTORY_OUTPUT } -report-output " \
+                   + f"{ VTUNE_REPORT_INPUT } -format csv -csv-delimiter semicolon\n"
 
 # Encoder Paths
 HM = "../hm-videomem/"
