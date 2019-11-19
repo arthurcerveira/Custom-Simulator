@@ -28,6 +28,7 @@ class DataFormatter(object):
         self.volume = {}
         self.loads_stores = {}
         self.block_size_info = {}
+        self.total_blocks = {}
 
     def get_trace_data(self):
         with open(self.file_path) as file:
@@ -157,11 +158,9 @@ class DataFormatter(object):
                     total_dict[title][encoder][cfg] += block_counter
                     data_index += 1
 
-                for i in range(8):
-                    matrix[i] = list(map(lambda x: (x / total_dict[title][encoder][cfg]) * 100, matrix[i]))
-
                 block_size_dict[title][encoder][cfg] = matrix
 
+        self.total_blocks = total_dict
         self.block_size_info = block_size_dict
 
     @staticmethod
@@ -227,8 +226,13 @@ def generate_block_graph(path):
     for title, encoder_dict in data_formatter.block_size_info.items():
         for encoder, cfg_dict in encoder_dict.items():
             for cfg, matrix in cfg_dict.items():
+                total = data_formatter.total_blocks[title][encoder][cfg]
+
+                # Converte o valor para porcentagens
+                for i in range(8):
+                    matrix[i] = list(map(lambda x: (x / total) * 100, matrix[i]))
+
                 figs.append(data_formatter.generate_block_graph(title, encoder, cfg, matrix))
-                # data_formatter.generate_block_graph(title, encoder, cfg, matrix)
 
     with PdfPages('block_size_graphs.pdf') as pdf:
         for fig in figs:
