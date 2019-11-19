@@ -149,7 +149,7 @@ class DataFormatter(object):
                 data_index = 8
                 for block in BLOCK_SIZES:
                     hor_size, ver_size = block.split('x')
-                    block_counter = int(data[data_index])
+                    block_counter = int(data[data_index]) * int(hor_size) * int(ver_size)
 
                     index = MATRIX_INDEX[hor_size]
                     column = MATRIX_INDEX[ver_size]
