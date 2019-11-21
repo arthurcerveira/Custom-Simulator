@@ -234,7 +234,7 @@ def generate_block_graph(path):
 
                 figs.append(data_formatter.generate_block_graph(title, encoder, cfg, matrix))
 
-    with PdfPages('block_size_graphs.pdf') as pdf:
+    with PdfPages('block_mem_graphs.pdf') as pdf:
         for fig in figs:
             pdf.savefig(fig)
 

@@ -4,11 +4,12 @@ import subprocess
 import shutil
 
 from data_reader import TraceReader, VtuneReader
-from data_formatter import generate_trace_graph, generate_vtune_graph
+from data_formatter import generate_trace_graph, generate_vtune_graph, generate_block_graph
 
 # Routines
 AUTOMATE_TRACE = True
 GENERATE_TRACE_GRAPH = False
+GENERATE_BLOCK_GRAPH = False
 
 AUTOMATE_VTUNE = False
 GENERATE_VTUNE_GRAPH = False
@@ -55,7 +56,7 @@ VIDEO_SEQUENCES_PATH = "../video_sequences"
 
 # Parameters
 FRAMES = '17'
-SEARCH_RANGE = ['128', '256', '384']
+SEARCH_RANGE = ['384']
 
 
 # Auxiliary Functions
@@ -229,6 +230,9 @@ def automate_trace():
 
     if GENERATE_TRACE_GRAPH is True:
         generate_trace_graph(AUTOMATE_TRACE_OUTPUT)
+
+    if GENERATE_BLOCK_GRAPH is True:
+        generate_block_graph(AUTOMATE_TRACE_OUTPUT)
 
 
 def automate_vtune():
