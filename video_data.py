@@ -62,11 +62,11 @@ class VideoData(object):
         self.resolution.append(height)
 
     def return_string(self):
-        string = self.video_encoder + ';'
-        string += self.encoder_config + ';'
-        string += self.title + ';'
-        string += self.resolution[0].__str__() + 'x' + self.resolution[1].__str__() + ';'
-        string += self.search_range + ';'
+        string = f'{ self.video_encoder };'
+        string += f'{ self.encoder_config };'
+        string += f'{ self.title };'
+        string += f'{ self.resolution[0] }x{ self.resolution[1] };'
+        string += f'{ self.search_range };'
 
         return string
 
@@ -99,9 +99,7 @@ class TraceData(VideoData):
         self.data_volume += volume
 
     def set_current_partition(self, size_hor, size_ver):
-        partition_string = size_hor.__str__()
-        partition_string += 'x'
-        partition_string += int(size_ver).__str__()
+        partition_string = f'{ int(size_hor) }x{ int(size_ver) }'
 
         self.current_partition = partition_string
 
@@ -114,13 +112,15 @@ class TraceData(VideoData):
     def return_string(self):
         string = super().return_string()
 
-        string += int(self.candidate_blocks).__str__() + ';'
-        string += int(self.data_volume).__str__() + ';'
+        string += f'{ int(self.candidate_blocks) };'
+        string += f'{ int(self.data_volume) };'
+
         volume_in_gb = int(self.data_volume) / (1024 * 1024 * 1024)
-        string += round(volume_in_gb, 2).__str__() + ';'
+
+        string += f'{ round(volume_in_gb, 2) };'
 
         for partition, counter in self.size_pu_counter.items():
-            string += counter.__str__() + ';'
+            string += f'{ counter };'
 
         return string
 
@@ -157,10 +157,10 @@ class VtuneData(VideoData):
         for metric in ("Loads", "Stores"):
             string += super().return_string()
 
-            string += metric + ";"
+            string += f'{ metric };'
 
             for module in MODULES:
-                string += self.modules[module][metric].__str__() + ";"
+                string += f'{ self.modules[module][metric] };'
 
             string += "\n"
 

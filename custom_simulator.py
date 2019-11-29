@@ -205,8 +205,8 @@ class AutomateVtuneReader:
                     self.generate_vtune_script(cmd, video_path, video_info["video_cfg"], cfg_path, sr)
                     self.run_vtune_script()
 
-                    self.process_report(video_info["title"], video_info["width"], video_info["height"], encoder, cfg,
-                                        sr)
+                    self.process_report(video_info["title"], video_info["width"],
+                                        video_info["height"], encoder, cfg, sr)
                     append_output_file(VTUNE_REPORT_OUTPUT, AUTOMATE_VTUNE_OUTPUT)
                     self.log_invalid_functions()
 

@@ -195,7 +195,7 @@ class DataFormatter(object):
 
 
 def generate_trace_graph(path):
-    from automate_read import SEARCH_RANGE
+    from custom_simulator import SEARCH_RANGE
     data_formatter = DataFormatter(path)
     data_formatter.get_trace_data()
 
