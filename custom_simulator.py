@@ -7,11 +7,11 @@ from data_reader import TraceReader, VtuneReader
 from data_formatter import generate_trace_graph, generate_vtune_graph, generate_block_graph
 
 # Routines
-AUTOMATE_TRACE = True
+AUTOMATE_TRACE = False
 GENERATE_TRACE_GRAPH = False
 GENERATE_BLOCK_GRAPH = False
 
-AUTOMATE_VTUNE = False
+AUTOMATE_VTUNE = True
 GENERATE_VTUNE_GRAPH = False
 
 # Trace Reader
@@ -43,8 +43,17 @@ GENERATE_CSV_CMD = f"amplxe-cl -report top-down -result-dir { DIRECTORY_OUTPUT }
 HM = "../hm-videomem/"
 VTM = "../vtm-mem/"
 
-ENCODER_CMD = {"HEVC": HM + "bin/TAppEncoderStatic",
-               "VVC": VTM + "bin/EncoderAppStatic"}
+HEVC = True
+VVC = False
+
+ENCODER_CMD = {}
+
+if HEVC is True:
+    ENCODER_CMD["HEVC"] = HM + "bin/TAppEncoderStatic"
+
+if VVC is True:
+    ENCODER_CMD["VVC"] = VTM + "bin/EncoderAppStatic"
+
 CONFIG = {"HEVC": {"Low Delay": HM + "cfg/encoder_lowdelay_main.cfg",
                    "Random Access": HM + "cfg/encoder_randomaccess_main.cfg"},
           "VVC": {"Low Delay": VTM + "cfg/encoder_lowdelay_vtm.cfg",
