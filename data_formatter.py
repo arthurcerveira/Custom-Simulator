@@ -106,20 +106,24 @@ class DataFormatter(object):
         stores = tuple(map(lambda x: (x / memory_access_total) * 100, tuple(stores)))
 
         ind = np.arange(number_bars)
-
         width = 0.8
 
-        load_plot = plt.bar(ind, loads, width)
-        store_plot = plt.bar(ind, stores, width, bottom=loads)
+        fig, ax = plt.subplots()
 
-        plt.xlabel('Encoder Modules')
-        plt.ylabel('Percentages')
-        plt.title(f"Memory Access(Loads and Stores) - { video }")
-        plt.xticks(ind, MODULES, fontproperties=font, multialignment='center')
-        # plt.yticks(np.arange(0, 100, 10))
-        plt.legend((load_plot[0], store_plot[0]), ('Loads', 'Stores'))
+        load_plot = ax.bar(ind, loads, width)
+        store_plot = ax.bar(ind, stores, width, bottom=loads)
 
-        plt.show()
+        ax.set_xlabel('Encoder Modules')
+        ax.set_ylabel('Percentages')
+        ax.set_title(f"Memory Access(Loads and Stores) - { video }")
+        ax.set_xticks(ind)
+        ax.set_xticklabels(MODULES, fontproperties=font, multialignment='center')
+        ax.legend((load_plot[0], store_plot[0]), ('Loads', 'Stores'))
+
+        fig.tight_layout()
+
+        # plt.show()
+        return fig
 
     def generate_matrix(self):
         block_size_dict = {}
@@ -214,8 +218,13 @@ def generate_vtune_graph(path):
     data_formatter = DataFormatter(path)
     data_formatter.get_vtune_data()
 
+    figs = []
     for video, data in data_formatter.loads_stores.items():
-        data_formatter.generate_vtune_graph(data, video)
+        figs.append(data_formatter.generate_vtune_graph(data, video))
+
+    with PdfPages('vtune_graphs.pdf') as pdf:
+        for fig in figs:
+            pdf.savefig(fig)
 
 
 def generate_block_graph(path):
@@ -241,5 +250,5 @@ def generate_block_graph(path):
 
 if __name__ == "__main__":
     # generate_trace_graph(FILE_PATH)
-    # generate_vtune_graph("vtune_output.txt")
-    generate_block_graph(FILE_PATH)
+    generate_vtune_graph("automate_vtune_output.txt")
+    # generate_block_graph(FILE_PATH)
