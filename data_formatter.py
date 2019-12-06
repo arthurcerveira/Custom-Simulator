@@ -8,7 +8,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from video_data import MODULES, BLOCK_SIZES
 
 font = fm.FontProperties(size=5.7)
-FILE_PATH = "trace_1080.txt"
+FILE_PATH = "inter_analysis_17_frames.csv"
 
 MATRIX_INDEX = {
     '128': 0,
@@ -174,7 +174,11 @@ class DataFormatter(object):
 
         fig, ax = plt.subplots()
 
-        heat_map = sn.heatmap(df_cm, annot=True, fmt='.2f')
+        heat_map = sn.heatmap(df_cm, annot=True, fmt='.2f', linewidths=0.01, linecolor='white')
+
+        for text in ax.texts:
+            if text.get_text() == "0.00":
+                text.set_text(None)
 
         bottom, top = heat_map.get_ylim()
         heat_map.set_ylim(bottom + 0.5, top - 0.5)
@@ -250,5 +254,5 @@ def generate_block_graph(path):
 
 if __name__ == "__main__":
     # generate_trace_graph(FILE_PATH)
-    generate_vtune_graph("automate_vtune_output.txt")
-    # generate_block_graph(FILE_PATH)
+    # generate_vtune_graph("overall_mem_analysis_17_frames.txt")
+    generate_block_graph(FILE_PATH)
