@@ -104,9 +104,6 @@ class TraceData(VideoData):
         self.current_partition = partition_string
 
     def increment_pu_counter(self, blocks):
-        # Se não houver a partição atual no pu counter, cria e inicializa em 0
-        self.size_pu_counter.setdefault(self.current_partition, 0)
-
         self.size_pu_counter[self.current_partition] += blocks
 
     def return_string(self):
