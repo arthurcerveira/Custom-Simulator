@@ -17,14 +17,14 @@ BLOCKS = {
 
 # Formato da partição
 PARTITION_PU = {
-    '0': [1, 1],  # 2N X 2N
-    '1': [0.5, 0.5],  # 2N X N
-    '2': [0.5, 0.5],  # N X 2N
-    '3': [0.25, 0.25],  # N X N
-    '4': [0.25, 0.75],  # 2N x nU
-    '5': [0.75, 0.25],  # 2N x nD
-    '6': [0.25, 0.75],  # nL x 2N
-    '7': [0.75, 0.25]  # nR x 2N
+    '0': ([1, 1],     [1, 1]),      # 2N X 2N
+    '1': ([1, 0.5],   [1, 0.5]),    # 2N X N
+    '2': ([0.5, 1],   [0.5, 1]),    # N X 2N
+    '3': ([0.5, 0.5], [0.5, 0.5]),  # N X N
+    '4': ([1, 0.75],  [1, 0.25]),   # 2N x nU
+    '5': ([1, 0.25],  [1, 0.75]),   # 2N x nD
+    '6': ([0.25, 1],  [0.75, 1]),   # nL x 2N
+    '7': ([0.75, 1],  [0.25, 1])    # nR x 2N
 }
 
 RASTER_SEARCH = 3
@@ -75,7 +75,7 @@ class TraceReader(object):
         elif line.startswith("VU"):
             self.vvc_get_volume(line)
 
-        # A primeira linha contem as informações do video
+        # A primeira linha contém as informações do video
         elif self.first_line:
             self.first_line = False
             self.set_info(line)
@@ -86,30 +86,26 @@ class TraceReader(object):
 
     def get_size(self, line):
         # U <xCU> <yCU> <size>
-        data = line.split()
-        size = int(data[3])
-        self.trace_data.current_cu_size = size
+        *_, size = line.split()
+
+        self.trace_data.current_cu_size = int(size)
 
     def process_pu(self, line):
         # P <sizePU> <idPart> <ref_frame_id>
-        data = line.split()
-
-        # Garante que P esta formatado certo
-        if data.__len__() != 4:
+        try:
+            _, pu, id_part, _ = line.split()
+        except ValueError:  # Esse erro ocorre quando P não está bem formatado
             return
 
-        pu = data[1]
+        partition_hor, partition_ver = PARTITION_PU[pu][int(id_part)]
+        cu_size = self.trace_data.current_cu_size
 
-        if int(pu) < 4:
-            id_part = 0
-        else:
-            id_part = int(data[2])
+        size_hor = partition_hor * cu_size
+        size_ver = partition_ver * cu_size
 
-        partition = PARTITION_PU[pu][id_part] * self.trace_data.current_cu_size
+        self.trace_data.set_current_partition(size_hor, size_ver)
 
-        self.trace_data.set_current_partition(self.trace_data.current_cu_size, partition)
-
-        volume = self.trace_data.current_cu_size * partition
+        volume = size_hor * size_ver
         self.trace_data.current_volume = volume
 
     def process_block(self):
@@ -121,8 +117,7 @@ class TraceReader(object):
 
     def process_first_search(self, line):
         # F <itID>
-        data = line.split()
-        it_id = data[1]
+        _, it_id = line.split()
 
         candidate_blocks = BLOCKS[it_id]
         self.trace_data.increment_candidate_blocks(candidate_blocks)
@@ -132,10 +127,10 @@ class TraceReader(object):
 
     def process_rectangle(self, line):
         # R <xL> <xR> <yT> <yB> <step>
-        data = line.split()
+        _, x_position_left, x_position_right, y_position_top, y_position_bottom, *_ = line.split()
 
-        ver_size = int(data[2]) - int(data[1])
-        hor_size = int(data[4]) - int(data[3])
+        hor_size = int(x_position_right) - int(x_position_left)
+        ver_size = int(y_position_bottom) - int(y_position_top)
 
         candidate_blocks = int((ver_size / RASTER_SEARCH) + (hor_size / RASTER_SEARCH))
         self.trace_data.increment_candidate_blocks(candidate_blocks)
@@ -146,19 +141,19 @@ class TraceReader(object):
         self.trace_data.increment_data_volume(volume)
 
     def set_info(self, line):
-        # <encoder> <name> <width> <height> <searchRange>
-        data = line.split()
+        # <encoder> <title> <width> <height> <searchRange>
+        encoder, title, width, height, search_range = line.split()
 
-        self.trace_data.video_encoder = data[0]
-        self.trace_data.set_resolution(data[2], data[3])
-        self.trace_data.search_range = data[4]
+        self.trace_data.video_encoder = encoder
+        self.trace_data.set_resolution(width, height)
+        self.trace_data.search_range = search_range
 
     def vvc_get_volume(self, line):
         # VU <xCU> <yCU> <size_hor> <size_ver> <depth>
-        data = line.split()
+        _, _, _, size_hor, size_ver, *_ = line.split()
 
-        size_hor = int(data[3])
-        size_ver = int(data[4])
+        size_hor = int(size_hor)
+        size_ver = int(size_ver)
 
         current_volume = size_hor * size_ver
 
@@ -281,12 +276,12 @@ class VtuneReader(object):
 
 
 def main():
-    # trace_reader = TraceReader(TRACE_PATH)
-    # trace_reader.read_data(VIDEO_NAME, CFG)
-    # trace_reader.save_data()
-    vtune_reader = VtuneReader(VTUNE_REPORT_PATH)
-    vtune_reader.read_data()
-    vtune_reader.save_data()
+    trace_reader = TraceReader(TRACE_PATH)
+    trace_reader.read_data(VIDEO_NAME, CFG)
+    trace_reader.save_data()
+    # vtune_reader = VtuneReader(VTUNE_REPORT_PATH)
+    # vtune_reader.read_data()
+    # vtune_reader.save_data()
 
 
 if __name__ == "__main__":
