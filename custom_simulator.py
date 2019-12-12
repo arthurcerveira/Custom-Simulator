@@ -7,11 +7,11 @@ from data_reader import TraceReader, VtuneReader
 from data_formatter import generate_trace_graph, generate_vtune_graph, generate_block_graph
 
 # Routines
-AUTOMATE_TRACE = False
+AUTOMATE_TRACE = True
 GENERATE_TRACE_GRAPH = False
-GENERATE_BLOCK_GRAPH = False
+GENERATE_BLOCK_GRAPH = True
 
-AUTOMATE_VTUNE = True
+AUTOMATE_VTUNE = False
 GENERATE_VTUNE_GRAPH = False
 
 # Trace Reader
@@ -34,7 +34,7 @@ HEADER_VTUNE = "Video encoder;Encoder Configuration;Video sequence;Resolution;Se
 VTUNE_SCRIPT = "vtune_script.sh"
 DIRECTORY_OUTPUT = "result_dir"
 
-SOURCE_AMPLXE = "source ~/intel/vtune_amplifier_2019/amplxe-vars.sh\n"
+SOURCE_AMPLXE = "source /opt/intel/vtune_amplifier_2019/amplxe-vars.sh\n"
 ANALYSE_MEM_CMD = f"amplxe-cl -collect memory-access -data-limit=20000 -result-dir { DIRECTORY_OUTPUT } -- "
 GENERATE_CSV_CMD = f"amplxe-cl -report top-down -result-dir { DIRECTORY_OUTPUT } -report-output " \
                    + f"{ VTUNE_REPORT_INPUT } -format csv -csv-delimiter semicolon\n"
