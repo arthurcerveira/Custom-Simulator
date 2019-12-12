@@ -8,7 +8,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from video_data import MODULES, BLOCK_SIZES
 
 font = fm.FontProperties(size=5.7)
-FILE_PATH = "inter_analysis_17_frames.csv"
+FILE_PATH = "automate_trace_output.txt"
 
 MATRIX_INDEX = {
     '128': 0,
@@ -36,14 +36,14 @@ class DataFormatter(object):
             next(file)
 
             for line in file:
-                # HEVC;Low Delay;BQSquare;416x240;64;22182858;2575891968;
-                data = line.split(';')
-                self.volume.setdefault(data[2], {})
+                # encoder;encoder cfg;title;resolution;search range;candidate blocks;accessed data;accessed data (GB)
+                encoder, encoder_cfg, title, _, _, _, _, volume, *_ = line.split(';')
+                self.volume.setdefault(title, {})
 
-                self.volume[data[2]].setdefault(data[1], {})
-                self.volume[data[2]][data[1]].setdefault(data[0], [])
+                self.volume[title].setdefault(encoder_cfg, {})
+                self.volume[title][encoder_cfg].setdefault(encoder, [])
 
-                self.volume[data[2]][data[1]][data[0]].append(float(data[7]))
+                self.volume[title][encoder_cfg][encoder].append(float(volume))
 
     @staticmethod
     def get_title(config, title):
@@ -134,11 +134,8 @@ class DataFormatter(object):
             next(file)
 
             for line in file:
-                data = line.split(';')
-
-                title = data[2]
-                encoder = data[0]
-                cfg = data[1]
+                # encoder;encoder cfg;title;resolution;search range;candidate blocks;accessed data;data (GB);blocks
+                encoder, cfg, title, _, _, _, _, _, *blocks = line.split(';')
 
                 block_size_dict.setdefault(title, {})
                 block_size_dict[title].setdefault(encoder, {})
@@ -150,17 +147,17 @@ class DataFormatter(object):
                 total_dict[title].setdefault(encoder, {})
                 total_dict[title][encoder].setdefault(cfg, 0)
 
-                data_index = 8
+                block_index = 0
                 for block in BLOCK_SIZES:
                     hor_size, ver_size = block.split('x')
-                    block_counter = int(data[data_index]) * int(hor_size) * int(ver_size)
+                    block_counter = int(blocks[block_index]) * int(hor_size) * int(ver_size)
 
                     index = MATRIX_INDEX[hor_size]
                     column = MATRIX_INDEX[ver_size]
 
                     matrix[index][column] += block_counter
                     total_dict[title][encoder][cfg] += block_counter
-                    data_index += 1
+                    block_index += 1
 
                 block_size_dict[title][encoder][cfg] = matrix
 
