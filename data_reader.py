@@ -127,7 +127,7 @@ class TraceReader(object):
 
     def process_rectangle(self, line):
         # R <xL> <xR> <yT> <yB> <step>
-        _, x_position_left, x_position_right, y_position_top, y_position_bottom, *_ = line.split()
+        _, x_position_left, x_position_right, y_position_top, y_position_bottom, _ = line.split()
 
         hor_size = int(x_position_right) - int(x_position_left)
         ver_size = int(y_position_bottom) - int(y_position_top)
@@ -150,7 +150,7 @@ class TraceReader(object):
 
     def vvc_get_volume(self, line):
         # VU <xCU> <yCU> <size_hor> <size_ver> <depth>
-        _, _, _, size_hor, size_ver, *_ = line.split()
+        *_, size_hor, size_ver, _ = line.split()
 
         size_hor = int(size_hor)
         size_ver = int(size_ver)
@@ -210,8 +210,6 @@ class VtuneReader(object):
             self.log_undefined_function(module)
             module = "Others"
 
-        self.vtune_data.set_module(module)
-
         load_mem = self.get_load_mem(line)
         self.vtune_data.increment_load_counter(load_mem, module)
 
@@ -220,8 +218,7 @@ class VtuneReader(object):
 
     @staticmethod
     def get_module(line):
-        data = line.split(";")
-        function = data[0]
+        function, *_ = line.split(";")
 
         # Retira os espaços em branco do inicio da string
         while function[0] == " ":
