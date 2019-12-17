@@ -135,12 +135,12 @@ class VtuneData(VideoData):
     def __init__(self):
         super().__init__()
 
-        self.modules = {}
+        self.modules = dict()
 
-    def set_module(self, module):
-        # Se o modulo não estiver em modules, cria e inicializa seus contadores em 0
-        self.modules.setdefault(module, {"Loads": 0,
-                                         "Stores": 0})
+        # Inicializa os contadores de em 0
+        for module in MODULES:
+            self.modules[module] = {"Loads": 0,
+                                    "Stores": 0}
 
     def increment_load_counter(self, load_mem, module):
         self.modules[module]["Loads"] += load_mem
@@ -165,4 +165,7 @@ class VtuneData(VideoData):
 
     def clear(self):
         super().clear()
-        self.modules.clear()
+
+        for module in self.modules:
+            self.modules[module]["Loads"] = 0
+            self.modules[module]["Stores"] = 0

@@ -79,18 +79,19 @@ class DataFormatter(object):
             next(file)
 
             for line in file:
-                data = line.split(';')
+                _, encoder_cfg, title, _, _, metric, *modules = line.split(';')
 
-                self.loads_stores.setdefault(data[2], {})
-                video_modules = self.loads_stores[data[2]]
+                self.loads_stores.setdefault(title, {})
+                self.loads_stores[title].setdefault(encoder_cfg, {})
+                video_modules = self.loads_stores[title][encoder_cfg]
 
-                for i in range(MODULES.__len__()):
-                    video_modules.setdefault(MODULES[i], {"Loads": 0,
-                                                          "Stores": 0})
-                    video_modules[MODULES[i]][data[5]] = data[i+6]
+                for index in range(MODULES.__len__()):
+                    video_modules.setdefault(MODULES[index], {"Loads": 0,
+                                                              "Stores": 0})
+                    video_modules[MODULES[index]][metric] = modules[index]
 
     @staticmethod
-    def generate_vtune_graph(video_dict, video):
+    def generate_vtune_graph(video_dict, video, encoder_cfg):
         number_bars = MODULES.__len__()
 
         loads = []
@@ -115,14 +116,13 @@ class DataFormatter(object):
 
         ax.set_xlabel('Encoder Modules')
         ax.set_ylabel('Percentages')
-        ax.set_title(f"Memory Access(Loads and Stores) - { video }")
+        ax.set_title(f"Memory Access(Loads and Stores) - { video } - { encoder_cfg }")
         ax.set_xticks(ind)
         ax.set_xticklabels(MODULES, fontproperties=font, multialignment='center')
         ax.legend((load_plot[0], store_plot[0]), ('Loads', 'Stores'))
 
         fig.tight_layout()
 
-        # plt.show()
         return fig
 
     def generate_matrix(self):
@@ -220,8 +220,9 @@ def generate_vtune_graph(path):
     data_formatter.get_vtune_data()
 
     figs = []
-    for video, data in data_formatter.loads_stores.items():
-        figs.append(data_formatter.generate_vtune_graph(data, video))
+    for title, video_dict in data_formatter.loads_stores.items():
+        for encoder_cfg, data in video_dict.items():
+            figs.append(data_formatter.generate_vtune_graph(data, title, encoder_cfg))
 
     with PdfPages('vtune_graphs.pdf') as pdf:
         for fig in figs:
@@ -251,5 +252,5 @@ def generate_block_graph(path):
 
 if __name__ == "__main__":
     # generate_trace_graph(FILE_PATH)
-    # generate_vtune_graph("overall_mem_analysis_17_frames.txt")
-    generate_block_graph(FILE_PATH)
+    generate_vtune_graph("automate_vtune_output.txt")
+    # generate_block_graph(FILE_PATH)
