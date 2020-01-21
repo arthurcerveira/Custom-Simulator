@@ -37,8 +37,11 @@ CFG = "Low Delay"
 VTUNE_REPORT_PATH = "samples/report_vtune.csv"
 VTUNE_REPORT_OUTPUT = "vtune_reader_output.txt"
 
-with open('function2module.json', 'r') as fp:
-    FUNCTIONS_MAP = json.load(fp)
+with open('function2module-HM.json', 'r') as fp:
+    FUNCTIONS_MAP_HM = json.load(fp)
+
+with open('function2module-VTM.json', 'r') as fp:
+    FUNCTIONS_MAP_VTM = json.load(fp)
 
 
 class TraceReader(object):
@@ -184,6 +187,7 @@ class VtuneReader(object):
         self.input_path = vtune_input_path
         self.vtune_data = VtuneData()
         self.function_log = set()
+        self.function_map = dict()
 
     def set_info(self, title, width, height, encoder, encoder_cfg, sr):
         self.vtune_data.title = title
@@ -191,6 +195,12 @@ class VtuneReader(object):
         self.vtune_data.video_encoder = encoder
         self.vtune_data.encoder_config = encoder_cfg
         self.vtune_data.search_range = sr
+
+        if encoder == "HEVC":
+            self.function_map = FUNCTIONS_MAP_HM
+
+        if encoder == "VVC":
+            self.function_map = FUNCTIONS_MAP_VTM
 
     def read_data(self):
         with open(self.input_path) as input_file:
@@ -216,8 +226,7 @@ class VtuneReader(object):
         store_mem = self.get_store_mem(line)
         self.vtune_data.increment_store_counter(store_mem, module)
 
-    @staticmethod
-    def get_module(line):
+    def get_module(self, line):
         function, *_ = line.split(";")
 
         # Retira os espaços em branco do inicio da string
@@ -226,7 +235,7 @@ class VtuneReader(object):
 
         try:
             module = {
-                "value": FUNCTIONS_MAP[function],
+                "value": self.function_map[function],
                 "function": function,
                 "is_valid": True
             }

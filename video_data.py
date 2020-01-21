@@ -44,9 +44,6 @@ MODULES = ("Inter (IME)",
            "Current frame",
            "Filters")
 
-with open('function2module.json', 'r') as fp:
-    FUNCTIONS_MAP = json.load(fp)
-
 
 class VideoData(object):
     def __init__(self):

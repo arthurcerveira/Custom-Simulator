@@ -7,12 +7,12 @@ from data_reader import TraceReader, VtuneReader
 from data_formatter import generate_trace_graph, generate_vtune_graph, generate_block_graph
 
 # Routines
-AUTOMATE_TRACE = True
+AUTOMATE_TRACE = False
 GENERATE_TRACE_GRAPH = False
-GENERATE_BLOCK_GRAPH = True
+GENERATE_BLOCK_GRAPH = False
 
-AUTOMATE_VTUNE = False
-GENERATE_VTUNE_GRAPH = False
+AUTOMATE_VTUNE = True
+GENERATE_VTUNE_GRAPH = True
 
 # Trace Reader
 TRACE_INPUT = "mem_trace.txt"
@@ -43,8 +43,8 @@ GENERATE_CSV_CMD = f"amplxe-cl -report top-down -result-dir { DIRECTORY_OUTPUT }
 HM = "../hm-videomem/"
 VTM = "../vtm-mem/"
 
-HEVC = True
-VVC = False
+HEVC = False
+VVC = True
 
 ENCODER_CMD = {}
 
