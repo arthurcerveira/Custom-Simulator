@@ -48,11 +48,11 @@ MODULES = ("Inter (IME)",
 class VideoData(object):
     def __init__(self):
         # Encoded video info
-        self.title = ""
-        self.resolution = []
-        self.search_range = ""
-        self.video_encoder = ""
-        self.encoder_config = ""
+        self.title = str()
+        self.resolution = list()
+        self.search_range = str()
+        self.video_encoder = str()
+        self.encoder_config = str()
 
     def set_resolution(self, width, height):
         self.resolution.append(width)
@@ -85,7 +85,7 @@ class TraceData(VideoData):
         self.size_pu_counter = BLOCK_SIZES
 
         # Aux Variables
-        self.current_partition = ""
+        self.current_partition = str()
         self.current_cu_size = 0
         self.current_volume = 0
 
@@ -146,7 +146,7 @@ class VtuneData(VideoData):
         self.modules[module]["Stores"] += store_mem
 
     def return_string(self):
-        string = ""
+        string = str()
 
         for metric in ("Loads", "Stores"):
             string += super().return_string()

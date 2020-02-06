@@ -35,7 +35,7 @@ VTUNE_SCRIPT = "vtune_script.sh"
 DIRECTORY_OUTPUT = "result_dir"
 
 SOURCE_AMPLXE = "source /opt/intel/vtune_amplifier_2019/amplxe-vars.sh\n"
-ANALYSE_MEM_CMD = f"amplxe-cl -collect memory-access -data-limit=20000 -result-dir { DIRECTORY_OUTPUT } -- "
+ANALYSE_MEM_CMD = f"amplxe-cl -collect memory-access -data-limit=200000 -result-dir { DIRECTORY_OUTPUT } -- "
 GENERATE_CSV_CMD = f"amplxe-cl -report top-down -result-dir { DIRECTORY_OUTPUT } -report-output " \
                    + f"{ VTUNE_REPORT_INPUT } -format csv -csv-delimiter semicolon\n"
 
@@ -43,10 +43,10 @@ GENERATE_CSV_CMD = f"amplxe-cl -report top-down -result-dir { DIRECTORY_OUTPUT }
 HM = "../hm-videomem/"
 VTM = "../vtm-mem/"
 
-HEVC = False
+HEVC = True
 VVC = True
 
-ENCODER_CMD = {}
+ENCODER_CMD = dict()
 
 if HEVC is True:
     ENCODER_CMD["HEVC"] = HM + "bin/TAppEncoderStatic"

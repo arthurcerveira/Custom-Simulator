@@ -43,6 +43,9 @@ with open('function2module-HM.json', 'r') as fp:
 with open('function2module-VTM.json', 'r') as fp:
     FUNCTIONS_MAP_VTM = json.load(fp)
 
+FUNCTION_MAP = {"HEVC": FUNCTIONS_MAP_HM,
+                "VVC": FUNCTIONS_MAP_VTM}
+
 
 class TraceReader(object):
     def __init__(self, input_path):
@@ -165,7 +168,7 @@ class TraceReader(object):
         self.trace_data.set_current_partition(size_hor, size_ver)
 
     def block_sizes(self):
-        block_size_string = ""
+        block_size_string = str()
 
         for block_size, counter in self.trace_data.size_pu_counter.items():
             block_size_string += block_size + ";"
@@ -196,11 +199,7 @@ class VtuneReader(object):
         self.vtune_data.encoder_config = encoder_cfg
         self.vtune_data.search_range = sr
 
-        if encoder == "HEVC":
-            self.function_map = FUNCTIONS_MAP_HM
-
-        if encoder == "VVC":
-            self.function_map = FUNCTIONS_MAP_VTM
+        self.function_map = FUNCTION_MAP[encoder]
 
     def read_data(self):
         with open(self.input_path) as input_file:
