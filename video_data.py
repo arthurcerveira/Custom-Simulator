@@ -53,17 +53,18 @@ class VideoData(object):
         self.search_range = str()
         self.video_encoder = str()
         self.encoder_config = str()
+        self.qp = str()
 
     def set_resolution(self, width, height):
         self.resolution.append(width)
         self.resolution.append(height)
 
     def return_string(self):
-        string = f'{ self.video_encoder };'
-        string += f'{ self.encoder_config };'
-        string += f'{ self.title };'
-        string += f'{ self.resolution[0] }x{ self.resolution[1] };'
-        string += f'{ self.search_range };'
+        string = f'{ self.video_encoder },'
+        string += f'{ self.encoder_config },'
+        string += f'{ self.title },'
+        string += f'{ self.resolution[0] }x{ self.resolution[1] },'
+        string += f'{ self.search_range },'
 
         return string
 
@@ -106,15 +107,17 @@ class TraceData(VideoData):
     def return_string(self):
         string = super().return_string()
 
-        string += f'{ int(self.candidate_blocks) };'
-        string += f'{ int(self.data_volume) };'
+        string += f'{self.qp},'
+
+        string += f'{ int(self.candidate_blocks) },'
+        string += f'{ int(self.data_volume) },'
 
         volume_in_gb = int(self.data_volume) / (1024 * 1024 * 1024)
 
-        string += f'{ round(volume_in_gb, 2) };'
+        string += f'{ round(volume_in_gb, 2) },'
 
-        for partition, counter in self.size_pu_counter.items():
-            string += f'{ counter };'
+        for _, counter in self.size_pu_counter.items():
+            string += f'{ counter },'
 
         return string
 
@@ -151,10 +154,10 @@ class VtuneData(VideoData):
         for metric in ("Loads", "Stores"):
             string += super().return_string()
 
-            string += f'{ metric };'
+            string += f'{ metric },'
 
             for module in MODULES:
-                string += f'{ self.modules[module][metric] };'
+                string += f'{ self.modules[module][metric] },'
 
             string += "\n"
 

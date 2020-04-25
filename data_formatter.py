@@ -36,8 +36,9 @@ class DataFormatter(object):
             next(file)
 
             for line in file:
-                # encoder;encoder cfg;title;resolution;search range;candidate blocks;accessed data;accessed data (GB)
-                encoder, encoder_cfg, title, _, _, _, _, volume, *_ = line.split(';')
+                # encoder,encoder cfg,title,resolution,search range,candidate blocks,accessed data,accessed data (GB)
+                encoder, encoder_cfg, title, _, _, _, _, volume, * \
+                    _ = line.split(',')
                 self.volume.setdefault(title, {})
 
                 self.volume[title].setdefault(encoder_cfg, {})
@@ -79,7 +80,7 @@ class DataFormatter(object):
             next(file)
 
             for line in file:
-                _, encoder_cfg, title, _, _, metric, *modules = line.split(';')
+                _, encoder_cfg, title, _, _, metric, *modules = line.split(',')
 
                 self.loads_stores.setdefault(title, {})
                 self.loads_stores[title].setdefault(encoder_cfg, {})
@@ -103,8 +104,10 @@ class DataFormatter(object):
 
         memory_access_total = sum(loads) + sum(stores)
 
-        loads = tuple(map(lambda x: (x / memory_access_total) * 100, tuple(loads)))
-        stores = tuple(map(lambda x: (x / memory_access_total) * 100, tuple(stores)))
+        loads = tuple(
+            map(lambda x: (x / memory_access_total) * 100, tuple(loads)))
+        stores = tuple(
+            map(lambda x: (x / memory_access_total) * 100, tuple(stores)))
 
         ind = np.arange(number_bars)
         width = 0.8
@@ -116,9 +119,11 @@ class DataFormatter(object):
 
         ax.set_xlabel('Encoder Modules')
         ax.set_ylabel('Percentages')
-        ax.set_title(f"Memory Access(Loads and Stores) - { video } - { encoder_cfg }")
+        ax.set_title(
+            f"Memory Access(Loads and Stores) - { video } - { encoder_cfg }")
         ax.set_xticks(ind)
-        ax.set_xticklabels(MODULES, fontproperties=font, multialignment='center')
+        ax.set_xticklabels(MODULES, fontproperties=font,
+                           multialignment='center')
         ax.legend((load_plot[0], store_plot[0]), ('Loads', 'Stores'))
 
         fig.tight_layout()
@@ -134,12 +139,13 @@ class DataFormatter(object):
             next(file)
 
             for line in file:
-                # encoder;encoder cfg;title;resolution;search range;candidate blocks;accessed data;data (GB);blocks
-                encoder, cfg, title, _, _, _, _, _, *blocks = line.split(';')
+                # encoder,encoder cfg,title,resolution,search range,candidate blocks,accessed data,data (GB),blocks
+                encoder, cfg, title, _, _, _, _, _, *blocks = line.split(',')
 
                 block_size_dict.setdefault(title, {})
                 block_size_dict[title].setdefault(encoder, {})
-                block_size_dict[title][encoder].setdefault(cfg, np.zeros((8, 8)))
+                block_size_dict[title][encoder].setdefault(
+                    cfg, np.zeros((8, 8)))
 
                 matrix = block_size_dict[title][encoder][cfg]
 
@@ -150,7 +156,8 @@ class DataFormatter(object):
                 block_index = 0
                 for block in BLOCK_SIZES:
                     hor_size, ver_size = block.split('x')
-                    block_counter = int(blocks[block_index]) * int(hor_size) * int(ver_size)
+                    block_counter = int(
+                        blocks[block_index]) * int(hor_size) * int(ver_size)
 
                     index = MATRIX_INDEX[hor_size]
                     column = MATRIX_INDEX[ver_size]
@@ -171,7 +178,8 @@ class DataFormatter(object):
 
         fig, ax = plt.subplots()
 
-        heat_map = sn.heatmap(df_cm, annot=True, fmt='.2f', linewidths=0.01, linecolor='white')
+        heat_map = sn.heatmap(df_cm, annot=True, fmt='.2f',
+                              linewidths=0.01, linecolor='white')
 
         for text in ax.texts:
             if text.get_text() == "0.00":
@@ -180,7 +188,8 @@ class DataFormatter(object):
         bottom, top = heat_map.get_ylim()
         heat_map.set_ylim(bottom + 0.5, top - 0.5)
 
-        ax.set_title(f'Inter access per CU Size - { title } - { encoder } - { cfg }')
+        ax.set_title(
+            f'Inter access per CU Size - { title } - { encoder } - { cfg }')
         ax.set_ylabel('Vertical Dimension')
         ax.set_xlabel('Horizontal Dimension')
 
@@ -208,7 +217,8 @@ def generate_trace_graph(path):
     for title, video_data in data_formatter.volume.items():
         for cfg, volume in video_data.items():
             graph_title = data_formatter.get_title(title, cfg)
-            figs.append(data_formatter.generate_trace_graph(volume, graph_title, SEARCH_RANGE))
+            figs.append(data_formatter.generate_trace_graph(
+                volume, graph_title, SEARCH_RANGE))
 
     with PdfPages('trace_graphs.pdf') as pdf:
         for fig in figs:
@@ -222,7 +232,8 @@ def generate_vtune_graph(path):
     figs = []
     for title, video_dict in data_formatter.loads_stores.items():
         for encoder_cfg, data in video_dict.items():
-            figs.append(data_formatter.generate_vtune_graph(data, title, encoder_cfg))
+            figs.append(data_formatter.generate_vtune_graph(
+                data, title, encoder_cfg))
 
     with PdfPages('vtune_graphs.pdf') as pdf:
         for fig in figs:
@@ -241,9 +252,11 @@ def generate_block_graph(path):
 
                 # Converte o valor para porcentagens
                 for i in range(8):
-                    matrix[i] = list(map(lambda x: (x / total) * 100, matrix[i]))
+                    matrix[i] = list(
+                        map(lambda x: (x / total) * 100, matrix[i]))
 
-                figs.append(data_formatter.generate_block_graph(title, encoder, cfg, matrix))
+                figs.append(data_formatter.generate_block_graph(
+                    title, encoder, cfg, matrix))
 
     with PdfPages('block_mem_graphs.pdf') as pdf:
         for fig in figs:
