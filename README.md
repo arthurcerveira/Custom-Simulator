@@ -35,6 +35,7 @@ The default values are:
 # Parameters
 FRAMES = '17'
 SEARCH_RANGE = ['96']
+QP = ['32']
 ```
 
 ## Instructions

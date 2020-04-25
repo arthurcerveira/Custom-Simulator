@@ -7,29 +7,29 @@ from data_reader import TraceReader, VtuneReader
 from data_formatter import generate_trace_graph, generate_vtune_graph, generate_block_graph
 
 # Routines
-AUTOMATE_TRACE = True
+AUTOMATE_TRACE = False
 GENERATE_TRACE_GRAPH = False
 GENERATE_BLOCK_GRAPH = False
 
-AUTOMATE_VTUNE = False
-GENERATE_VTUNE_GRAPH = False
+AUTOMATE_VTUNE = True
+GENERATE_VTUNE_GRAPH = True
 
 # Trace Reader
 TRACE_INPUT = "mem_trace.txt"
 TRACE_OUTPUT = "trace_reader_output.txt"
 
-AUTOMATE_TRACE_OUTPUT = "automate_trace_output.txt"
+AUTOMATE_TRACE_OUTPUT = "automate_trace_output.csv"
 
-HEADER_TRACE = "Video encoder;Encoder Configuration;Video sequence;Resolution;" \
-               "Search range;Candidate blocks;Accessed data;Accessed data (GB);"
+HEADER_TRACE = "Video encoder,Encoder Configuration,Video sequence,Resolution," \
+               "Search range,QP,Candidate blocks,Accessed data,Accessed data (GB),"
 
 # Vtune Reader
 VTUNE_REPORT_INPUT = "report_vtune.csv"
 VTUNE_REPORT_OUTPUT = "vtune_reader_output.txt"
 
-AUTOMATE_VTUNE_OUTPUT = "automate_vtune_output.txt"
+AUTOMATE_VTUNE_OUTPUT = "automate_vtune_output.csv"
 
-HEADER_VTUNE = "Video encoder;Encoder Configuration;Video sequence;Resolution;Search range;Metric;"
+HEADER_VTUNE = "Video encoder,Encoder Configuration,Video sequence,Resolution,Search range,Metric,"
 
 VTUNE_SCRIPT = "vtune_script.sh"
 DIRECTORY_OUTPUT = "result_dir"
@@ -43,7 +43,7 @@ GENERATE_CSV_CMD = f"amplxe-cl -report top-down -result-dir { DIRECTORY_OUTPUT }
 HM = "../hm-videomem/"
 VTM = "../vtm-mem/"
 
-HEVC = True
+HEVC = False
 VVC = True
 
 ENCODER_CMD = dict()
@@ -64,15 +64,16 @@ VIDEO_CFG_PATH = {"HEVC": HM + "cfg/per-sequence/",
 VIDEO_SEQUENCES_PATH = "../video_sequences"
 
 # Parameters
-FRAMES = '17'
+FRAMES = '2'
 SEARCH_RANGE = ['96']
+QP = ['32']
 
 
 # Auxiliary Functions
 def list_all_videos(path):
     paths = []
 
-    for root, directory, files in os.walk(path):
+    for root, _, files in os.walk(path):
         for f in files:
             video_path = os.path.join(root, f)
             paths.append(video_path)
@@ -80,8 +81,8 @@ def list_all_videos(path):
     return paths
 
 
-def generate_cmd_array(command, video_path, video_cfg, cfg, sr):
-    return [command, '-c', cfg, '-c', video_cfg, '-i', video_path, '-f', FRAMES, '-sr', sr]
+def generate_cmd_array(command, video_path, video_cfg, cfg, sr, qp):
+    return [command, '-c', cfg, '-c', video_cfg, '-i', video_path, '-f', FRAMES, '-sr', sr, '-q', qp]
 
 
 def generate_cmd_str(command, video_path, video_cfg, cfg, sr):
@@ -127,13 +128,14 @@ class AutomateTraceReader(object):
             output_file.write(HEADER_TRACE)
             output_file.write(self.data_reader.block_sizes())
 
-    def process_trace(self, video_title, cfg):
-        self.data_reader.read_data(video_title, cfg)
+    def process_trace(self, video_title, cfg, qp):
+        self.data_reader.read_data(video_title, cfg, qp)
         self.data_reader.save_data()
 
     @staticmethod
-    def generate_trace(cmd, video_path, video_cfg, cfg_path, sr):
-        cmd_array = generate_cmd_array(cmd, video_path, video_cfg, cfg_path, sr)
+    def generate_trace(cmd, video_path, video_cfg, cfg_path, sr, qp):
+        cmd_array = generate_cmd_array(
+            cmd, video_path, video_cfg, cfg_path, sr, qp)
         subprocess.run(cmd_array)
 
     @staticmethod
@@ -149,13 +151,15 @@ class AutomateTraceReader(object):
 
             for cfg, cfg_path in CONFIG[encoder].items():
                 for sr in SEARCH_RANGE:
-                    self.generate_trace(cmd, video_path, video_info["video_cfg"], cfg_path, sr)
+                    for qp in QP:
+                        self.generate_trace(
+                            cmd, video_path, video_info["video_cfg"], cfg_path, sr, qp)
 
-                    self.process_trace(video_info["title"], cfg)
-                    append_output_file(TRACE_OUTPUT, AUTOMATE_TRACE_OUTPUT)
+                        self.process_trace(video_info["title"], cfg, qp)
+                        append_output_file(TRACE_OUTPUT, AUTOMATE_TRACE_OUTPUT)
 
-                    # Apaga o arquivo trace antes de gerar o próximo
-                    self.clean()
+                        # Apaga o arquivo trace antes de gerar o próximo
+                        self.clean()
 
 
 class AutomateVtuneReader:
@@ -185,12 +189,14 @@ class AutomateVtuneReader:
         subprocess.call(["bash", VTUNE_SCRIPT])
 
     def process_report(self, title, width, height, encoder, encoder_cfg, sr):
-        self.data_reader.set_info(title, width, height, encoder, encoder_cfg, sr)
+        self.data_reader.set_info(
+            title, width, height, encoder, encoder_cfg, sr)
         self.data_reader.read_data()
         self.data_reader.save_data()
 
     def log_invalid_functions(self):
-        self.invalid_functions = self.invalid_functions.union(self.data_reader.function_log)
+        self.invalid_functions = self.invalid_functions.union(
+            self.data_reader.function_log)
         with open("undefined_functions.py", 'w') as log:
             log.write("functions = " + pprint.pformat(self.invalid_functions))
 
@@ -211,12 +217,14 @@ class AutomateVtuneReader:
 
             for cfg, cfg_path in CONFIG[encoder].items():
                 for sr in SEARCH_RANGE:
-                    self.generate_vtune_script(cmd, video_path, video_info["video_cfg"], cfg_path, sr)
+                    self.generate_vtune_script(
+                        cmd, video_path, video_info["video_cfg"], cfg_path, sr)
                     self.run_vtune_script()
 
                     self.process_report(video_info["title"], video_info["width"],
                                         video_info["height"], encoder, cfg, sr)
-                    append_output_file(VTUNE_REPORT_OUTPUT, AUTOMATE_VTUNE_OUTPUT)
+                    append_output_file(VTUNE_REPORT_OUTPUT,
+                                       AUTOMATE_VTUNE_OUTPUT)
                     self.log_invalid_functions()
 
                     self.clean()
