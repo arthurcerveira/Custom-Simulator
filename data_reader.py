@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from video_data import TraceData, VtuneData, MODULES
 
@@ -53,9 +54,13 @@ class TraceReader(object):
         self.trace_data = TraceData()
         self.first_line = True
 
-    def read_data(self, video_title, encoder_cfg):
+    def read_data(self, video_title, encoder_cfg, qp):
+        print(f'\n[{datetime.now():%H:%M:%S}] Calculating memory '
+              + f'accesses in {video_title} for {encoder_cfg}')
+
         self.trace_data.title = video_title
         self.trace_data.encoder_config = encoder_cfg
+        self.trace_data.qp = str(qp)
 
         with open(self.input_path) as input_file:
             for line in input_file:
@@ -64,6 +69,9 @@ class TraceReader(object):
     def process_line(self, line):
         if line.startswith('U '):
             self.get_size(line)
+
+        elif line.startswith('I '):
+            self.process_frame(line)
 
         elif line.startswith('P '):
             self.process_pu(line)
@@ -89,6 +97,11 @@ class TraceReader(object):
         # Se não se enquadra nenhum dos casos, pula
         else:
             return
+
+    def process_frame(self, line):
+        _, frame = line.split()
+
+        print(f"[{datetime.now():%H:%M:%S}] Processing frame {frame}.")
 
     def get_size(self, line):
         # U <xCU> <yCU> <size>
@@ -128,7 +141,8 @@ class TraceReader(object):
         candidate_blocks = BLOCKS[it_id]
         self.trace_data.increment_candidate_blocks(candidate_blocks)
 
-        self.trace_data.increment_data_volume(self.trace_data.current_volume * candidate_blocks)
+        self.trace_data.increment_data_volume(
+            self.trace_data.current_volume * candidate_blocks)
         self.trace_data.increment_pu_counter(candidate_blocks)
 
     def process_rectangle(self, line):
@@ -138,7 +152,8 @@ class TraceReader(object):
         hor_size = int(x_position_right) - int(x_position_left)
         ver_size = int(y_position_bottom) - int(y_position_top)
 
-        candidate_blocks = int((ver_size / RASTER_SEARCH) + (hor_size / RASTER_SEARCH))
+        candidate_blocks = int(
+            (ver_size / RASTER_SEARCH) + (hor_size / RASTER_SEARCH))
         self.trace_data.increment_candidate_blocks(candidate_blocks)
 
         self.trace_data.increment_pu_counter(candidate_blocks)
@@ -148,7 +163,7 @@ class TraceReader(object):
 
     def set_info(self, line):
         # <encoder> <title> <width> <height> <searchRange>
-        encoder, title, width, height, search_range = line.split()
+        encoder, _, width, height, search_range = line.split()
 
         self.trace_data.video_encoder = encoder
         self.trace_data.set_resolution(width, height)
@@ -170,8 +185,8 @@ class TraceReader(object):
     def block_sizes(self):
         block_size_string = str()
 
-        for block_size, counter in self.trace_data.size_pu_counter.items():
-            block_size_string += block_size + ";"
+        for block_size, _ in self.trace_data.size_pu_counter.items():
+            block_size_string += block_size + ","
 
         block_size_string += "\n"
 
@@ -267,7 +282,7 @@ class VtuneReader(object):
         module_string = ""
 
         for module in MODULES:
-            module_string += module + ";"
+            module_string += module + ","
 
         module_string += "\n"
 
@@ -282,7 +297,7 @@ class VtuneReader(object):
 
 def main():
     trace_reader = TraceReader(TRACE_PATH)
-    trace_reader.read_data(VIDEO_NAME, CFG)
+    trace_reader.read_data(VIDEO_NAME, CFG, 32)
     trace_reader.save_data()
     # vtune_reader = VtuneReader(VTUNE_REPORT_PATH)
     # vtune_reader.read_data()
