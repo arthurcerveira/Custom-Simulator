@@ -1,9 +1,10 @@
 import json
 from datetime import datetime
+import pprint
 
-from video_data import TraceData, VtuneData, MODULES
+from video_data import TraceData, VtuneData, BlockStatsData, MODULES, BLOCK_SIZES
 
-# Numero de blocos acessados baseado na janela de busca
+# Number of blocks based on search window
 BLOCKS = {
     '1': 4,
     '2': 8,
@@ -16,7 +17,7 @@ BLOCKS = {
     '256': 16
 }
 
-# Formato da partição
+# Partition format
 PARTITION_PU = {
     '0': ([1, 1],     [1, 1]),      # 2N X 2N
     '1': ([1, 0.5],   [1, 0.5]),    # 2N X N
@@ -30,13 +31,18 @@ PARTITION_PU = {
 
 RASTER_SEARCH = 3
 
-TRACE_PATH = "mem_trace.txt"  # "vvc_mem_trace.txt"
-TRACE_OUTPUT = "trace_reader_output.txt"
-VIDEO_NAME = "BasketballDrive"
-CFG = "Low Delay"
+TRACE_PATH = "samples/mem_trace.txt"  # "vvc_mem_trace.txt"
+TRACE_OUTPUT = "trace_reader_output.csv"
 
 VTUNE_REPORT_PATH = "samples/report_vtune.csv"
-VTUNE_REPORT_OUTPUT = "vtune_reader_output.txt"
+VTUNE_REPORT_OUTPUT = "vtune_reader_output.csv"
+
+BLOCK_STATS_PATH = "samples/block_stats.csv"
+BLOCK_STATS_OUTPUT = "block_stats_output.csv"
+BLOCK_STATS_HEADER = "Video Sequence, Encoder Configuration, QP, "
+
+VIDEO_NAME = "Campfire"
+CFG = "Low Delay"
 
 with open('function2module-HM.json', 'r') as fp:
     FUNCTIONS_MAP_HM = json.load(fp)
@@ -295,13 +301,62 @@ class VtuneReader(object):
         self.vtune_data.clear()
 
 
+class BlockStatsReader(object):
+    def __init__(self, input_path):
+        self.block_data = BlockStatsData()
+        self.input_path = input_path
+
+        self.header = BLOCK_STATS_HEADER
+
+        for block_size in BLOCK_SIZES:
+            self.header += f'{block_size}, '
+
+    def read_data(self, video_title, encoder_cfg, qp):
+        self.block_data.title = video_title
+        self.block_data.encoder_config = encoder_cfg
+        self.block_data.qp = qp
+
+        with open(self.input_path) as input_file:
+            for line in input_file:
+                self.process_line(line)
+
+    def process_line(self, line):
+        # Skips header
+        if line.startswith('#'):
+            return
+
+        _, ref_frame, _, _, block_width, block_height, *_ = line.split(';')
+
+        # Frame 0 is processed by intra-prediction module
+        if ref_frame == '0':
+            return
+
+        block_size = f'{int(block_width)}x{int(block_height)}'
+
+        self.block_data.increment_block_size(block_size)
+
+    def save_data(self):
+        with open(BLOCK_STATS_OUTPUT, 'w') as output_file:
+            output_file.write(self.header + '\n')
+            output_file.write(str(self.block_data) + '\n')
+
+        with open("invalid_sizes.py", 'w') as log:
+            log.write(
+                f'invalid_sizes = {pprint.pformat(self.block_data.invalid_sizes)}')
+
+        self.block_data.clear()
+
+
 def main():
-    trace_reader = TraceReader(TRACE_PATH)
-    trace_reader.read_data(VIDEO_NAME, CFG, 32)
-    trace_reader.save_data()
+    # trace_reader = TraceReader(TRACE_PATH)
+    # trace_reader.read_data(VIDEO_NAME, CFG, 22)
+    # trace_reader.save_data()
     # vtune_reader = VtuneReader(VTUNE_REPORT_PATH)
     # vtune_reader.read_data()
     # vtune_reader.save_data()
+    block_reader = BlockStatsReader(BLOCK_STATS_PATH)
+    block_reader.read_data(VIDEO_NAME, CFG, 22)
+    block_reader.save_data()
 
 
 if __name__ == "__main__":

@@ -169,3 +169,36 @@ class VtuneData(VideoData):
         for module in self.modules:
             self.modules[module]["Loads"] = 0
             self.modules[module]["Stores"] = 0
+
+
+class BlockStatsData(VideoData):
+    def __init__(self):
+        super().__init__()
+
+        self.block_sizes = BLOCK_SIZES
+        self.invalid_sizes = dict()
+
+    def increment_block_size(self, block_size):
+        try:
+            self.block_sizes[block_size] += 1
+        except KeyError:
+            self.invalid_sizes.setdefault(block_size, 0)
+            self.invalid_sizes[block_size] += 1
+
+    def __str__(self):
+        string = f'{ self.title },'
+        string += f'{ self.encoder_config },'
+        string += f'{ self.qp },'
+
+        for _, total in self.block_sizes.items():
+            string += f'{ total },'
+
+        return string
+
+    def clear(self):
+        super().clear()
+
+        for block_size in BLOCK_SIZES:
+            self.block_sizes[block_size] = 0
+
+        self.invalid_sizes = {}
