@@ -200,7 +200,7 @@ class TraceReader(object):
 
     def save_data(self):
         with open(TRACE_OUTPUT, 'w') as output_file:
-            output_file.write(self.trace_data.return_string() + "\n")
+            output_file.write(str(self.trace_data))
 
         self.trace_data.clear()
         self.first_line = True
@@ -213,12 +213,13 @@ class VtuneReader(object):
         self.function_log = set()
         self.function_map = dict()
 
-    def set_info(self, title, width, height, encoder, encoder_cfg, sr):
+    def set_info(self, title, width, height, encoder, encoder_cfg, sr, qp):
         self.vtune_data.title = title
         self.vtune_data.set_resolution(width, height)
         self.vtune_data.video_encoder = encoder
         self.vtune_data.encoder_config = encoder_cfg
         self.vtune_data.search_range = sr
+        self.vtune_data.qp = qp
 
         self.function_map = FUNCTION_MAP[encoder]
 
@@ -296,7 +297,7 @@ class VtuneReader(object):
 
     def save_data(self):
         with open(VTUNE_REPORT_OUTPUT, 'w') as output_file:
-            output_file.write(self.vtune_data.return_string())
+            output_file.write(str(self.vtune_data))
 
         self.vtune_data.clear()
 
@@ -338,7 +339,7 @@ class BlockStatsReader(object):
     def save_data(self):
         with open(BLOCK_STATS_OUTPUT, 'w') as output_file:
             output_file.write(self.header + '\n')
-            output_file.write(str(self.block_data) + '\n')
+            output_file.write(str(self.block_data))
 
         with open("invalid_sizes.py", 'w') as log:
             log.write(
