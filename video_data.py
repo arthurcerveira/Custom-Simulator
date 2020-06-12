@@ -65,7 +65,7 @@ class VideoData(object):
         string += f'{ self.title },'
         string += f'{ self.resolution[0] }x{ self.resolution[1] },'
         string += f'{ self.search_range },'
-        string += f'{ self.qp }'
+        string += f'{ self.qp },'
 
         return string
 
@@ -153,7 +153,7 @@ class VtuneData(VideoData):
         string = str()
 
         for metric in ("Loads", "Stores"):
-            string += str(super())
+            string += super().__str__()
 
             string += f'{ metric },'
 

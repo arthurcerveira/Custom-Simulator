@@ -7,7 +7,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 from video_data import MODULES, BLOCK_SIZES
 
-font = fm.FontProperties(size=5.7)
+font = fm.FontProperties(size=7)
 FILE_PATH = "automate_trace_output.txt"
 
 MATRIX_INDEX = {
@@ -80,11 +80,13 @@ class DataFormatter(object):
             next(file)
 
             for line in file:
-                _, encoder_cfg, title, _, _, metric, *modules = line.split(',')
+                _, encoder_cfg, title, _, _, qp, metric, * \
+                    modules = line.split(',')
 
                 self.loads_stores.setdefault(title, {})
                 self.loads_stores[title].setdefault(encoder_cfg, {})
-                video_modules = self.loads_stores[title][encoder_cfg]
+                self.loads_stores[title][encoder_cfg].setdefault(qp, {})
+                video_modules = self.loads_stores[title][encoder_cfg][qp]
 
                 for index in range(MODULES.__len__()):
                     video_modules.setdefault(MODULES[index], {"Loads": 0,
@@ -92,7 +94,7 @@ class DataFormatter(object):
                     video_modules[MODULES[index]][metric] = modules[index]
 
     @staticmethod
-    def generate_vtune_graph(video_dict, video, encoder_cfg):
+    def generate_vtune_graph(video_dict, video, encoder_cfg, qp):
         number_bars = MODULES.__len__()
 
         loads = []
@@ -112,15 +114,17 @@ class DataFormatter(object):
         ind = np.arange(number_bars)
         width = 0.8
 
+        plt.xticks(rotation=21)
+
         fig, ax = plt.subplots()
 
         load_plot = ax.bar(ind, loads, width)
         store_plot = ax.bar(ind, stores, width, bottom=loads)
 
-        ax.set_xlabel('Encoder Modules')
+        ax.set_xlabel('Modules')
         ax.set_ylabel('Percentages')
         ax.set_title(
-            f"Memory Access(Loads and Stores) - { video } - { encoder_cfg }")
+            f"Memory Accesses - { video } - { encoder_cfg } - QP {qp}")
         ax.set_xticks(ind)
         ax.set_xticklabels(MODULES, fontproperties=font,
                            multialignment='center')
@@ -156,8 +160,9 @@ class DataFormatter(object):
                 block_index = 0
                 for block in BLOCK_SIZES:
                     hor_size, ver_size = block.split('x')
-                    block_counter = int(
-                        blocks[block_index]) * int(hor_size) * int(ver_size)
+                    block_value = int(float(blocks[block_index]))
+
+                    block_counter = block_value * int(hor_size) * int(ver_size)
 
                     index = MATRIX_INDEX[hor_size]
                     column = MATRIX_INDEX[ver_size]
@@ -231,9 +236,10 @@ def generate_vtune_graph(path):
 
     figs = []
     for title, video_dict in data_formatter.loads_stores.items():
-        for encoder_cfg, data in video_dict.items():
-            figs.append(data_formatter.generate_vtune_graph(
-                data, title, encoder_cfg))
+        for encoder_cfg, qp_dict in video_dict.items():
+            for qp, data in qp_dict.items():
+                figs.append(data_formatter.generate_vtune_graph(
+                    data, title, encoder_cfg, qp))
 
     with PdfPages('vtune_graphs.pdf') as pdf:
         for fig in figs:
@@ -265,5 +271,5 @@ def generate_block_graph(path):
 
 if __name__ == "__main__":
     # generate_trace_graph(FILE_PATH)
-    generate_vtune_graph("automate_vtune_output.txt")
+    generate_vtune_graph("Preliminary_Vtune_Results.csv")
     # generate_block_graph(FILE_PATH)
