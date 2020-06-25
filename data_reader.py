@@ -2,7 +2,8 @@ import json
 from datetime import datetime
 import pprint
 
-from video_data import TraceData, VtuneData, BlockStatsData, MODULES, BLOCK_SIZES
+from video_data import TraceData, VtuneData, BlockStatsData
+from video_data import MODULES, MODULES_PREDICTION, BLOCK_SIZES
 
 # Number of blocks based on search window
 BLOCKS = {
@@ -34,7 +35,7 @@ RASTER_SEARCH = 3
 TRACE_PATH = "samples/mem_trace.txt"  # "vvc_mem_trace.txt"
 TRACE_OUTPUT = "trace_reader_output.csv"
 
-VTUNE_REPORT_PATH = "samples/report_vtune.csv"
+VTUNE_REPORT_PATH = "report_dbg.csv"
 VTUNE_REPORT_OUTPUT = "vtune_reader_output.csv"
 
 BLOCK_STATS_PATH = "samples/block_stats.csv"
@@ -50,8 +51,23 @@ with open('function2module-HM.json', 'r') as fp:
 with open('function2module-VTM.json', 'r') as fp:
     FUNCTIONS_MAP_VTM = json.load(fp)
 
+with open('dict-vtm-prediction.json', 'r') as fp:
+    FUNCTIONS_MAP_VTM_PREDICTION = json.load(fp)
+
 FUNCTION_MAP = {"HEVC": FUNCTIONS_MAP_HM,
-                "VVC": FUNCTIONS_MAP_VTM}
+                "VVC": FUNCTIONS_MAP_VTM,
+                "VVC-Prediction": FUNCTIONS_MAP_VTM_PREDICTION}
+
+
+def modules_header(modules):
+    module_string = ""
+
+    for module in modules:
+        module_string += module + ","
+
+    module_string += "\n"
+
+    return module_string
 
 
 class TraceReader(object):
@@ -207,9 +223,8 @@ class TraceReader(object):
 
 
 class VtuneReader(object):
-    def __init__(self, vtune_input_path):
-        self.input_path = vtune_input_path
-        self.vtune_data = VtuneData()
+    def __init__(self):
+        self.vtune_data = VtuneData(MODULES)
         self.function_log = set()
         self.function_map = dict()
 
@@ -223,9 +238,9 @@ class VtuneReader(object):
 
         self.function_map = FUNCTION_MAP[encoder]
 
-    def read_data(self):
-        with open(self.input_path) as input_file:
-            # Pula as duas primeiras linhas
+    def read_data(self, input_path):
+        with open(input_path) as input_file:
+            # Skip the two first lines
             next(input_file)
             next(input_file)
 
@@ -233,13 +248,12 @@ class VtuneReader(object):
                 self.process_line(line)
 
     def process_line(self, line):
-        module = self.get_module(line)
+        function_info = self.get_function_info(line)
 
-        if module["is_valid"] is True:
-            module = module["value"]
-        else:
-            self.log_undefined_function(module)
-            module = "Others"
+        if not function_info["is_valid"]:
+            self.log_undefined_function(function_info)
+
+        module = function_info["module"] if function_info["is_valid"] else "Others"
 
         load_mem = self.get_load_mem(line)
         self.vtune_data.increment_load_counter(load_mem, module)
@@ -247,59 +261,90 @@ class VtuneReader(object):
         store_mem = self.get_store_mem(line)
         self.vtune_data.increment_store_counter(store_mem, module)
 
-    def get_module(self, line):
+    def get_function_info(self, line):
         function, *_ = line.split(";")
 
-        # Retira os espaços em branco do inicio da string
+        # Trim string
         while function[0] == " ":
             function = function[1::]
 
         try:
-            module = {
-                "value": self.function_map[function],
-                "function": function,
+            function_info = {
+                "module": self.function_map[function],
+                "name": function,
                 "is_valid": True
             }
         except KeyError:
-            module = {
-                "value": None,
-                "function": function,
+            function_info = {
+                "module": None,
+                "name": function,
                 "is_valid": False
             }
 
-        return module
+        return function_info
 
     @staticmethod
     def get_load_mem(line):
         data = line.split(";")
-        load_mem = int(data[18])
+        load_mem = int(data[16])
         return load_mem
 
     @staticmethod
     def get_store_mem(line):
         data = line.split(";")
-        store_mem = int(data[20])
+        store_mem = int(data[18])
         return store_mem
 
-    def log_undefined_function(self, module):
-        self.function_log.add(module["function"])
+    def log_undefined_function(self, function_info):
+        self.function_log.add(function_info["name"])
 
     @staticmethod
-    def modules_header():
-        module_string = ""
-
-        for module in MODULES:
-            module_string += module + ","
-
-        module_string += "\n"
-
-        return module_string
+    def get_modules_header():
+        return modules_header(MODULES)
 
     def save_data(self):
         with open(VTUNE_REPORT_OUTPUT, 'w') as output_file:
             output_file.write(str(self.vtune_data))
 
         self.vtune_data.clear()
+
+
+class VtuneReaderPrediction(VtuneReader):
+    def __init__(self):
+        super().__init__()
+        self.vtune_data = VtuneData(MODULES_PREDICTION)
+
+    def set_info(self, title, width, height, encoder, encoder_cfg, sr, qp):
+        super().set_info(title, width, height, encoder, encoder_cfg, sr, qp)
+
+        self.function_map = FUNCTION_MAP["VVC-Prediction"]
+
+    def read_data(self, report_path):
+        with open(report_path) as input_file:
+            # Skip the two first lines
+            next(input_file)
+            next(input_file)
+
+            for line in input_file:
+                self.process_line(line)
+
+    def process_line(self, line):
+        function_info = self.get_function_info(line)
+        module = function_info["module"]
+
+        if not function_info["is_valid"] or module == 'None':
+            self.log_undefined_function(function_info)
+            return
+
+        load_mem = self.get_load_mem(line)
+        self.vtune_data.increment_load_counter(load_mem, module)
+
+        store_mem = self.get_store_mem(line)
+        self.vtune_data.increment_store_counter(store_mem, module)
+
+    @staticmethod
+    def get_modules_header():
+        return modules_header(MODULES_PREDICTION)
 
 
 class BlockStatsReader(object):
@@ -352,12 +397,14 @@ def main():
     # trace_reader = TraceReader(TRACE_PATH)
     # trace_reader.read_data(VIDEO_NAME, CFG, 22)
     # trace_reader.save_data()
-    # vtune_reader = VtuneReader(VTUNE_REPORT_PATH)
-    # vtune_reader.read_data()
-    # vtune_reader.save_data()
-    block_reader = BlockStatsReader(BLOCK_STATS_PATH)
-    block_reader.read_data(VIDEO_NAME, CFG, 22)
-    block_reader.save_data()
+    vtune_reader = VtuneReader()
+    vtune_reader.set_info('BasketballDrive', 1920, 1080,
+                          'VVC', 'Low Delay', '96', '37')
+    vtune_reader.read_data(VTUNE_REPORT_PATH)
+    vtune_reader.save_data()
+    # block_reader = BlockStatsReader(BLOCK_STATS_PATH)
+    # block_reader.read_data(VIDEO_NAME, CFG, 22)
+    # block_reader.save_data()
 
 
 if __name__ == "__main__":

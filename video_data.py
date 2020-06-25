@@ -34,15 +34,26 @@ BLOCK_SIZES = {
     "4x8": 0
 }
 
-MODULES = ("Inter (IME)",
-           "Inter (FME)",
+MODULES = ("Inter",
            "Intra",
-           "Transf. and Quant.",
+           "TQ",
            "Others",
            "Entropy",
-           "Encoder control",
-           "Current frame",
+           "Control",
            "Filters")
+
+MODULES_PREDICTION = ("IME",
+                      "IME:RDCost",
+                      "FME",
+                      "FME:RDCost",
+                      "FME:Interpolation",
+                      "Affine",
+                      "Affine:RDCost",
+                      "Geo",
+                      "Geo:RDCost",
+                      "Intra",
+                      "Intra:RDCost",
+                      "Inter")
 
 
 class VideoData(object):
@@ -133,13 +144,14 @@ class TraceData(VideoData):
 
 
 class VtuneData(VideoData):
-    def __init__(self):
+    def __init__(self, modules_list):
         super().__init__()
 
+        self.modules_list = modules_list
         self.modules = dict()
 
-        # Inicializa os contadores de em 0
-        for module in MODULES:
+        # Initialize the counters in 0
+        for module in self.modules_list:
             self.modules[module] = {"Loads": 0,
                                     "Stores": 0}
 
@@ -157,7 +169,7 @@ class VtuneData(VideoData):
 
             string += f'{ metric },'
 
-            for module in MODULES:
+            for module in self.modules_list:
                 string += f'{ self.modules[module][metric] },'
 
             string += "\n"
