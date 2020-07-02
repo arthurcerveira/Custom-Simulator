@@ -55,6 +55,14 @@ MODULES_PREDICTION = ("IME",
                       "Intra:RDCost",
                       "Inter")
 
+MODULES_DECODER = ("Inter decoding",
+                   "Intra decoding",
+                   "IT/IQ",
+                   "Others",
+                   "Entropy",
+                   "Control",
+                   "Filters")
+
 
 class VideoData(object):
     def __init__(self):

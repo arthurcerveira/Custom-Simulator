@@ -3,7 +3,7 @@ import pprint
 import subprocess
 import shutil
 
-from data_reader import TraceReader, VtuneReader, VtuneReaderPrediction
+from data_reader import TraceReader, VtuneReader, VtuneReaderPrediction, VtuneReaderDecoder
 from data_formatter import generate_trace_graph, generate_vtune_graph, generate_block_graph
 
 # Routines
@@ -14,7 +14,8 @@ GENERATE_BLOCK_GRAPH = False
 AUTOMATE_VTUNE = False
 GENERATE_VTUNE_GRAPH = False
 
-PROCESS_REPORTS = True
+PROCESS_REPORTS = False
+PROCESS_DECODER_REPORTS = True
 
 # Trace Reader
 TRACE_INPUT = "mem_trace.txt"
@@ -44,6 +45,9 @@ GENERATE_CSV_CMD = f"amplxe-cl -report top-down -result-dir { DIRECTORY_OUTPUT }
 # Report reader
 AUTOMATE_VTUNE_PREDICTION_OUTPUT = "vtune_prediction.csv"
 REPORTS = "reports"
+
+AUTOMATE_VTUNE_DECODER_OUTPUT = "vtune_decoder.csv"
+REPORTS_DECODER = "reports-decoder"
 
 CFG_SHORT = {
     "RA": "Random Access",
@@ -133,7 +137,7 @@ def create_output_file(output_path, header, aux_data):
 
 
 # Report processor functions
-def read_reports(title, cfg, qp, data_reader, report_path, automate_output):
+def read_report(title, cfg, qp, data_reader, report_path, automate_output):
     data_reader.set_info(title, 1920, 1080, 'VVC', cfg, '96', qp)
     data_reader.read_data(report_path)
     data_reader.save_data()
@@ -275,17 +279,6 @@ class AutomateVtuneReader:
                         self.clean(report)
 
 
-def main():
-    if AUTOMATE_TRACE is True:
-        automate_trace()
-
-    if AUTOMATE_VTUNE is True:
-        automate_vtune()
-
-    if PROCESS_REPORTS is True:
-        process_reports()
-
-
 def automate_trace():
     automate_reader = AutomateTraceReader()
     automate_reader.video_paths = list_all_videos(VIDEO_SEQUENCES_PATH)
@@ -327,10 +320,40 @@ def process_reports():
             title, qp, cfg = get_report_info(report)
             report_path = os.path.join(root, report)
 
-            read_reports(title, cfg, qp, vtune_reader,
-                         report_path, AUTOMATE_VTUNE_OUTPUT)
-            read_reports(title, cfg, qp, vtune_reader_prediction,
-                         report_path, AUTOMATE_VTUNE_PREDICTION_OUTPUT)
+            read_report(title, cfg, qp, vtune_reader,
+                        report_path, AUTOMATE_VTUNE_OUTPUT)
+            read_report(title, cfg, qp, vtune_reader_prediction,
+                        report_path, AUTOMATE_VTUNE_PREDICTION_OUTPUT)
+
+
+def process_decoder_reports():
+    vtune_reader_decoder = VtuneReaderDecoder()
+
+    # Create output file
+    modules = vtune_reader_decoder.get_modules_header()
+    create_output_file(AUTOMATE_VTUNE_DECODER_OUTPUT, HEADER_VTUNE, modules)
+
+    for root, _, files in os.walk(REPORTS_DECODER):
+        for report in files:
+            title, qp, cfg = get_report_info(report)
+            report_path = os.path.join(root, report)
+
+            read_report(title, cfg, qp, vtune_reader_decoder,
+                        report_path, AUTOMATE_VTUNE_DECODER_OUTPUT)
+
+
+def main():
+    if AUTOMATE_TRACE is True:
+        automate_trace()
+
+    if AUTOMATE_VTUNE is True:
+        automate_vtune()
+
+    if PROCESS_REPORTS is True:
+        process_reports()
+
+    if PROCESS_DECODER_REPORTS is True:
+        process_decoder_reports()
 
 
 if __name__ == "__main__":

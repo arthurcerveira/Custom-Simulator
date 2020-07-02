@@ -9,9 +9,11 @@ vtune_reader_output.csv
 automate_trace_output.csv
 automate_vtune_output.csv
 vtune_prediction.csv
+vtune_decoder.csv
 undefined_functions.py
 bins/
 reports/
+reports-decoder/
 
 # Data Formatter
 trace_graphs.pdf

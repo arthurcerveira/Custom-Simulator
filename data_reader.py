@@ -3,7 +3,7 @@ from datetime import datetime
 import pprint
 
 from video_data import TraceData, VtuneData, BlockStatsData
-from video_data import MODULES, MODULES_PREDICTION, BLOCK_SIZES
+from video_data import MODULES, MODULES_PREDICTION, MODULES_DECODER, BLOCK_SIZES
 
 # Number of blocks based on search window
 BLOCKS = {
@@ -54,9 +54,13 @@ with open('function2module-VTM.json', 'r') as fp:
 with open('dict-vtm-prediction.json', 'r') as fp:
     FUNCTIONS_MAP_VTM_PREDICTION = json.load(fp)
 
+with open('dict-vtm-decoder.json', 'r') as fp:
+    FUNCTIONS_MAP_VTM_DECODER = json.load(fp)
+
 FUNCTION_MAP = {"HEVC": FUNCTIONS_MAP_HM,
                 "VVC": FUNCTIONS_MAP_VTM,
-                "VVC-Prediction": FUNCTIONS_MAP_VTM_PREDICTION}
+                "VVC-Prediction": FUNCTIONS_MAP_VTM_PREDICTION,
+                "VVC-Decoder": FUNCTIONS_MAP_VTM_DECODER}
 
 
 def modules_header(modules):
@@ -107,16 +111,15 @@ class TraceReader(object):
         elif line.startswith('R '):
             self.process_rectangle(line)
 
-        # Codificador VVC
+        # VVC encoder
         elif line.startswith("VU"):
             self.vvc_get_volume(line)
 
-        # A primeira linha contém as informações do video
+        # First line contains the video information
         elif self.first_line:
             self.first_line = False
             self.set_info(line)
 
-        # Se não se enquadra nenhum dos casos, pula
         else:
             return
 
@@ -286,13 +289,13 @@ class VtuneReader(object):
     @staticmethod
     def get_load_mem(line):
         data = line.split(";")
-        load_mem = int(data[16])
+        load_mem = int(data[18])
         return load_mem
 
     @staticmethod
     def get_store_mem(line):
         data = line.split(";")
-        store_mem = int(data[18])
+        store_mem = int(data[20])
         return store_mem
 
     def log_undefined_function(self, function_info):
@@ -319,21 +322,11 @@ class VtuneReaderPrediction(VtuneReader):
 
         self.function_map = FUNCTION_MAP["VVC-Prediction"]
 
-    def read_data(self, report_path):
-        with open(report_path) as input_file:
-            # Skip the two first lines
-            next(input_file)
-            next(input_file)
-
-            for line in input_file:
-                self.process_line(line)
-
     def process_line(self, line):
         function_info = self.get_function_info(line)
         module = function_info["module"]
 
         if not function_info["is_valid"] or module == 'None':
-            self.log_undefined_function(function_info)
             return
 
         load_mem = self.get_load_mem(line)
@@ -345,6 +338,21 @@ class VtuneReaderPrediction(VtuneReader):
     @staticmethod
     def get_modules_header():
         return modules_header(MODULES_PREDICTION)
+
+
+class VtuneReaderDecoder(VtuneReader):
+    def __init__(self):
+        super().__init__()
+        self.vtune_data = VtuneData(MODULES_DECODER)
+
+    def set_info(self, title, width, height, encoder, encoder_cfg, sr, qp):
+        super().set_info(title, width, height, encoder, encoder_cfg, sr, qp)
+
+        self.function_map = FUNCTION_MAP["VVC-Decoder"]
+
+    @staticmethod
+    def get_modules_header():
+        return modules_header(MODULES_DECODER)
 
 
 class BlockStatsReader(object):
