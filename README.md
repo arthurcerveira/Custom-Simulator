@@ -4,26 +4,34 @@ Custom Simulator is a collection of scripts developed to read memory traces gene
 
 ## Results
 
-### Inter-prediction specific memory analysis
-
-The inter-frame prediction is the most resource-intensive operation in both HEVC and VVC. Considering this, a specific analysis was performed as a way to measure the increased VVC memory requirements in comparison with HEVC. The HM and VTM software applications were extended to generate memory trace files detailing the accesses to the candidate blocks and their required volume of fetched data.
-
-#### Inter-prediction overall memory accesses
-
-![Inter prediction overall graph](/samples/graphs/Inter_prediction_overall_mem_analysis.png)
-
-#### Inter-prediction memory accesses per CU size
-
-![HM Block memory graph](/samples/graphs/HM_block_mem_graph.png)
-![VTM Block memory graph](/samples/graphs/VTM_block_mem_graph.png)
-
 ### Overall memory profiling
 
 The overall memory profiling was performed using the Intel® VTune™ Amplifier profiling tool to monitor the volume of memory loads (read accesses) and stores (write accesses) of each module.
 
 #### Memory accesses profiling per encoding module
 
-![VTM Block memory graph](/samples/graphs/memory_breakdown.png)
+![VTM Block memory graph](/figs/memory_breakdown.png)
+
+### Inter-prediction specific memory analysis
+
+The inter-frame prediction is the most resource-intensive operation in both HEVC and VVC encoders. Considering this, a specific analysis was performed as a way to measure the increased VVC memory requirements in comparison with HEVC. The HM and VTM software applications were extended to generate memory trace files detailing the accesses to the candidate blocks and their required volume of fetched data.
+
+#### Inter-prediction overall memory accesses
+
+![Inter prediction overall graph](/figs/Inter_prediction_overall_mem_analysis.png)
+
+#### Inter-prediction memory accesses per CU size
+
+![HM Block memory graph](/figs/HM_block_mem_graph.png)
+![VTM Block memory graph](/figs/VTM_block_mem_graph.png)
+
+#### Absolute memory accesses per CU size
+
+![Absolute Block Access](/figs/VTM_abs_block_memory.png)
+
+#### Block sizes adopted during inter-prediction encoding
+
+![Block sizes adopted](/figs/VTM_block_adopted.png)
 
 ## Parameters
 
@@ -40,4 +48,9 @@ QP = ['32']
 
 ## Instructions
 
-The instructions on how to run the scripts are available [in this repository](https://github.com/arthurcerveira/Video-Memory-Analysis-Environment).
+The instructions on how to run the scripts are available [in this repository](https://github.com/arthurcerveira/Video-Memory-Analysis-Environment#Instructions).
+
+## Links
+
+- [Memory Assesment Of Versatile Video Coding](https://arxiv.org/pdf/2005.13331.pdf) (ICIP 2020 Paper)
+- [Evaluation of Memory Requirements in VVC Encoders](https://youtu.be/5vYPUehzYD8) (SIM 2020 Presentation) 
