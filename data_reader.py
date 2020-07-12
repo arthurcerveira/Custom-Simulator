@@ -45,16 +45,16 @@ BLOCK_STATS_HEADER = "Video Sequence, Encoder Configuration, QP, "
 VIDEO_NAME = "Campfire"
 CFG = "Low Delay"
 
-with open('function2module-HM.json', 'r') as fp:
+with open('function-mapping/function2module-HM.json', 'r') as fp:
     FUNCTIONS_MAP_HM = json.load(fp)
 
-with open('function2module-VTM.json', 'r') as fp:
+with open('function-mapping/function2module-VTM.json', 'r') as fp:
     FUNCTIONS_MAP_VTM = json.load(fp)
 
-with open('dict-vtm-prediction.json', 'r') as fp:
+with open('function-mapping/dict-vtm-prediction.json', 'r') as fp:
     FUNCTIONS_MAP_VTM_PREDICTION = json.load(fp)
 
-with open('dict-vtm-decoder.json', 'r') as fp:
+with open('function-mapping/dict-vtm-decoder.json', 'r') as fp:
     FUNCTIONS_MAP_VTM_DECODER = json.load(fp)
 
 FUNCTION_MAP = {"HEVC": FUNCTIONS_MAP_HM,
