@@ -34,15 +34,34 @@ BLOCK_SIZES = {
     "4x8": 0
 }
 
-MODULES = ("Inter (IME)",
-           "Inter (FME)",
+MODULES = ("Inter",
            "Intra",
-           "Transf. and Quant.",
+           "TQ",
            "Others",
            "Entropy",
-           "Encoder control",
-           "Current frame",
+           "Control",
            "Filters")
+
+MODULES_PREDICTION = ("IME",
+                      "IME:RDCost",
+                      "FME",
+                      "FME:RDCost",
+                      "FME:Interpolation",
+                      "Affine",
+                      "Affine:RDCost",
+                      "Geo",
+                      "Geo:RDCost",
+                      "Intra",
+                      "Intra:RDCost",
+                      "Inter")
+
+MODULES_DECODER = ("Inter decoding",
+                   "Intra decoding",
+                   "IT/IQ",
+                   "Others",
+                   "Entropy",
+                   "Control",
+                   "Filters")
 
 
 class VideoData(object):
@@ -59,12 +78,13 @@ class VideoData(object):
         self.resolution.append(width)
         self.resolution.append(height)
 
-    def return_string(self):
+    def __str__(self):
         string = f'{ self.video_encoder },'
         string += f'{ self.encoder_config },'
         string += f'{ self.title },'
         string += f'{ self.resolution[0] }x{ self.resolution[1] },'
         string += f'{ self.search_range },'
+        string += f'{ self.qp },'
 
         return string
 
@@ -104,10 +124,8 @@ class TraceData(VideoData):
     def increment_pu_counter(self, blocks):
         self.size_pu_counter[self.current_partition] += blocks
 
-    def return_string(self):
-        string = super().return_string()
-
-        string += f'{self.qp},'
+    def __str__(self):
+        string = str(super())
 
         string += f'{ int(self.candidate_blocks) },'
         string += f'{ int(self.data_volume) },'
@@ -118,6 +136,8 @@ class TraceData(VideoData):
 
         for _, counter in self.size_pu_counter.items():
             string += f'{ counter },'
+
+        string += '\n'
 
         return string
 
@@ -132,13 +152,14 @@ class TraceData(VideoData):
 
 
 class VtuneData(VideoData):
-    def __init__(self):
+    def __init__(self, modules_list):
         super().__init__()
 
+        self.modules_list = modules_list
         self.modules = dict()
 
-        # Inicializa os contadores de em 0
-        for module in MODULES:
+        # Initialize the counters in 0
+        for module in self.modules_list:
             self.modules[module] = {"Loads": 0,
                                     "Stores": 0}
 
@@ -148,15 +169,15 @@ class VtuneData(VideoData):
     def increment_store_counter(self, store_mem, module):
         self.modules[module]["Stores"] += store_mem
 
-    def return_string(self):
+    def __str__(self):
         string = str()
 
         for metric in ("Loads", "Stores"):
-            string += super().return_string()
+            string += super().__str__()
 
             string += f'{ metric },'
 
-            for module in MODULES:
+            for module in self.modules_list:
                 string += f'{ self.modules[module][metric] },'
 
             string += "\n"
@@ -192,6 +213,8 @@ class BlockStatsData(VideoData):
 
         for _, total in self.block_sizes.items():
             string += f'{ total },'
+
+        string += '\n'
 
         return string
 

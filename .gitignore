@@ -8,12 +8,21 @@ vtune_reader_output.csv
 # Custom Simulator
 automate_trace_output.csv
 automate_vtune_output.csv
+vtune_prediction.csv
+vtune_decoder.csv
 undefined_functions.py
+bins/
+reports/
+reports-decoder/
 
 # Data Formatter
 trace_graphs.pdf
 vtune_graphs.pdf
 block_mem_graphs.pdf
+
+# Encoders
+str.bin
+rec.yuv
 
 # Created by https://www.gitignore.io/api/python,pycharm
 # Edit at https://www.gitignore.io/?templates=python,pycharm
